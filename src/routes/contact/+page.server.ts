@@ -1,12 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { Resend } from 'resend';
 import type { Actions } from './$types';
-import { RESEND_API_KEY, CONTACT_FROM_EMAIL, CONTACT_TO_EMAIL } from '$env/static/private';
-
-const resend = new Resend(RESEND_API_KEY);
+import { env } from '$env/dynamic/private';
 
 export const actions = {
 	default: async ({ request }) => {
+		const resend = new Resend(env.RESEND_API_KEY);
 		const data = await request.formData();
 		const name = data.get('name')?.toString();
 		const email = data.get('email')?.toString();
@@ -38,8 +37,8 @@ export const actions = {
 		`;
 
 		const { error } = await resend.emails.send({
-			from: CONTACT_FROM_EMAIL,
-			to: CONTACT_TO_EMAIL,
+			from: env.CONTACT_FROM_EMAIL,
+			to: env.CONTACT_TO_EMAIL,
 			replyTo: email,
 			subject: emailSubject,
 			html,
