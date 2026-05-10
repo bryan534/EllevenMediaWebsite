@@ -3,6 +3,7 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { afterNavigate } from '$app/navigation';
 	import { Preloader } from '$lib/motion-core';
 
 	let { children } = $props();
@@ -53,20 +54,29 @@
 	let itemsContainer: HTMLDivElement;
 	let itemEls: HTMLAnchorElement[] = [];
 
-	function setPill() {
+	function setPill(instant = false) {
 		if (!pill || !itemsContainer || !itemEls[selected]) return;
 		const el = itemEls[selected];
 		const dims = el.getBoundingClientRect();
 		const parentLeft = itemsContainer.getBoundingClientRect().left;
+		if (instant) pill.style.transition = 'none';
 		pill.style.width = dims.width + 'px';
 		pill.style.height = dims.height + 'px';
 		pill.style.left = (dims.left - parentLeft) + 'px';
+		if (instant) {
+			// restore transition after the paint so clicks animate again
+			requestAnimationFrame(() => { pill.style.transition = ''; });
+		}
 	}
 
 	$effect(() => {
-		// re-run when selected changes
+		// re-run when selected changes (nav clicks only — navigations use afterNavigate)
 		selected;
 		setPill();
+	});
+
+	afterNavigate(() => {
+		setPill(true);
 	});
 
 	onMount(() => {
