@@ -53,17 +53,7 @@
 			secondLoopImagesRef[index] = node;
 		};
 
-	/* Tile size in px (matches CSS) */
-	function getTilePx(): number {
-		if (typeof window === "undefined") return 160;
-		const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-		return window.innerWidth < 640 ? 5.5 * rem : 10 * rem;
-	}
-
 	onMount(() => {
-		const tilePx = getTilePx();
-		const scaleX = window.innerWidth / tilePx;
-		const scaleY = window.innerHeight / tilePx;
 		const middleIndex = Math.floor(images.length / 2);
 		const radiusTarget = isScaleUpRef[images.length + middleIndex];
 		const isScaleDownTargets = secondLoopImagesRef.filter(
@@ -121,8 +111,8 @@
 		if (isScaleUpRef.length) {
 			tl.fromTo(
 				isScaleUpRef,
-				{ scaleX: 1, scaleY: 1 },
-				{ scaleX, scaleY, duration: 2 },
+				{ width: "10em", height: "10em" },
+				{ width: "100vw", height: "100dvh", duration: 2 },
 				"< 0.5",
 			);
 		}
@@ -216,7 +206,6 @@
 		width: 5.5em;
 		height: 5.5em;
 		will-change: transform;
-		transform: translateZ(0);
 	}
 
 	.preloader-gap {
@@ -234,7 +223,6 @@
 		.preloader-tile {
 			width: 10em;
 			height: 10em;
-			will-change: transform;
 		}
 
 		.preloader-gap {
