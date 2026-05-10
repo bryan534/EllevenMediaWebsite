@@ -71,14 +71,14 @@
 
 <footer class="footer">
 	<div class="container footer-inner">
-		<a href="/" aria-label="EllevenMedia Home">
-			<img src="/logo.svg" alt="EllevenMedia" class="footer-logo-img" />
+		<a href="/" class="footer-brand" aria-label="Elleven Media Home">
+			<img src="/logo.svg" alt="Elleven Media" class="footer-logo-img" />
 		</a>
 		<div class="footer-links">
 			<a href="/privacy">Privacy Policy</a>
 			<a href="/terms">Terms of Service</a>
 		</div>
-		<p class="footer-copy">© {new Date().getFullYear()} EllevenMedia. All rights reserved.</p>
+		<p class="footer-copy">© {new Date().getFullYear()} elleven media. All rights reserved.</p>
 	</div>
 </footer>
 
@@ -141,47 +141,74 @@
 
 	/* ── Footer ── */
 	.footer {
-		border-top: var(--border-thin);
-		padding: var(--space-2xl) 0;
+		border-top: 1px solid rgba(255, 255, 255, 0.05);
+		padding: var(--space-4xl) 0 var(--space-3xl);
 	}
 
 	.footer-inner {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: center;
+		gap: var(--space-2xl);
 	}
 
-	.footer-logo-img {
-		height: 28px;
-		width: auto;
-		object-fit: contain;
-		filter: brightness(0) invert(1);
-		opacity: 0.8;
+	.footer-brand {
+		display: inline-block;
 		transition: opacity var(--duration-fast) var(--ease-out);
 	}
 
-	.footer-logo-img:hover {
-		opacity: 1;
+	.footer-brand:hover {
+		opacity: 0.7;
 	}
 
-	.footer-copy {
-		font-size: 0.8rem;
-		color: var(--color-gray-500);
+	.footer-logo-img {
+		height: 36px;
+		width: auto;
+		object-fit: contain;
+		filter: brightness(0) invert(1);
 	}
 
 	.footer-links {
 		display: flex;
-		gap: var(--space-xl);
-		font-size: 0.8rem;
+		gap: var(--space-2xl);
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
 	}
 
 	.footer-links a {
 		color: var(--color-gray-400);
+		position: relative;
+		padding-bottom: 4px;
 		transition: color var(--duration-fast) var(--ease-out);
+	}
+
+	.footer-links a::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 1px;
+		background: var(--color-white);
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform 0.4s var(--ease-out);
 	}
 
 	.footer-links a:hover {
 		color: var(--color-white);
+	}
+
+	.footer-links a:hover::after {
+		transform: scaleX(1);
+		transform-origin: left;
+	}
+
+	.footer-copy {
+		font-size: 0.8rem;
+		color: var(--color-gray-600);
 	}
 
 	@media (max-width: 768px) {
@@ -190,13 +217,16 @@
 			font-size: 0.75rem;
 		}
 
+		.footer {
+			padding: var(--space-3xl) 0 var(--space-2xl);
+		}
 		.footer-inner {
-			flex-direction: column;
-			gap: var(--space-md);
-			text-align: center;
+			gap: var(--space-xl);
 		}
 		.footer-links {
+			flex-direction: column;
 			gap: var(--space-md);
+			align-items: center;
 		}
 	}
 </style>
