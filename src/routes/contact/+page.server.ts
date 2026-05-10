@@ -1,5 +1,9 @@
 import { fail } from '@sveltejs/kit';
+import { Resend } from 'resend';
 import type { Actions } from './$types';
+import { RESEND_API_KEY, CONTACT_FROM_EMAIL, CONTACT_TO_EMAIL } from '$env/static/private';
+
+const resend = new Resend(RESEND_API_KEY);
 
 export const actions = {
 	default: async ({ request }) => {
@@ -10,8 +14,6 @@ export const actions = {
 		const message = data.get('message')?.toString();
 		const honeypot = data.get('website_url')?.toString();
 
-		// If the honeypot field has ANY content, silently reject it 
-		// (pretend it was successful so the bot moves on without trying again)
 		if (honeypot) {
 			console.log('Bot detected and blocked via honeypot field.');
 			return { success: true };
@@ -21,11 +23,32 @@ export const actions = {
 			return fail(400, { name, email, subject, message, missing: true });
 		}
 
-		// Mock sending email or saving to DB
-		console.log('Contact form submitted:', { name, email, subject, message });
+		const emailSubject = subject
+			? `Contact Form: ${subject} — from ${name}`
+			: `Contact Form: New message from ${name}`;
 
-		// Add a simulated delay for realism
-		await new Promise(resolve => setTimeout(resolve, 800));
+		const html = `
+			<h2>New Contact Form Submission</h2>
+			<table style="border-collapse:collapse;width:100%;max-width:600px;font-family:sans-serif;">
+				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Name</td><td style="padding:12px;border-bottom:1px solid #eee;">${name}</td></tr>
+				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Email</td><td style="padding:12px;border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Subject</td><td style="padding:12px;border-bottom:1px solid #eee;">${subject || '(none provided)'}</td></tr>
+				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Message</td><td style="padding:12px;border-bottom:1px solid #eee;white-space:pre-wrap;">${message}</td></tr>
+			</table>
+		`;
+
+		const { error } = await resend.emails.send({
+			from: CONTACT_FROM_EMAIL,
+			to: CONTACT_TO_EMAIL,
+			replyTo: email,
+			subject: emailSubject,
+			html,
+		});
+
+		if (error) {
+			console.error('Failed to send contact email:', error);
+			return fail(500, { name, email, subject, message, error: true });
+		}
 
 		return { success: true };
 	}
