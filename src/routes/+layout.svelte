@@ -76,6 +76,8 @@
 			showPreloader = true;
 			document.body.style.overflow = 'hidden';
 		}
+		/* Reveal page — preloader (black, fixed, z-999) covers it if needed */
+		document.documentElement.style.visibility = '';
 
 		setTimeout(setPill, 0);
 		window.addEventListener('resize', setPill);

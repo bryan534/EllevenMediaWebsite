@@ -53,14 +53,17 @@
 			secondLoopImagesRef[index] = node;
 		};
 
-	/* Responsive tile size: smaller on mobile */
-	function getTileSize(): string {
-		if (typeof window === "undefined") return "10em";
-		return window.innerWidth < 640 ? "5.5em" : "10em";
+	/* Tile size in px (matches CSS) */
+	function getTilePx(): number {
+		if (typeof window === "undefined") return 160;
+		const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
+		return window.innerWidth < 640 ? 5.5 * rem : 10 * rem;
 	}
 
 	onMount(() => {
-		const tileSize = getTileSize();
+		const tilePx = getTilePx();
+		const scaleX = window.innerWidth / tilePx;
+		const scaleY = window.innerHeight / tilePx;
 		const middleIndex = Math.floor(images.length / 2);
 		const radiusTarget = isScaleUpRef[images.length + middleIndex];
 		const isScaleDownTargets = secondLoopImagesRef.filter(
@@ -118,15 +121,8 @@
 		if (isScaleUpRef.length) {
 			tl.fromTo(
 				isScaleUpRef,
-				{
-					width: tileSize,
-					height: tileSize,
-				},
-				{
-					width: "100vw",
-					height: "100dvh",
-					duration: 2,
-				},
+				{ scaleX: 1, scaleY: 1 },
+				{ scaleX, scaleY, duration: 2 },
 				"< 0.5",
 			);
 		}
@@ -219,11 +215,14 @@
 	.preloader-tile {
 		width: 5.5em;
 		height: 5.5em;
+		will-change: transform;
+		transform: translateZ(0);
 	}
 
 	.preloader-gap {
 		padding-left: 0.4em;
 		padding-right: 0.4em;
+		will-change: transform;
 	}
 
 	.preloader-mask {
@@ -235,6 +234,7 @@
 		.preloader-tile {
 			width: 10em;
 			height: 10em;
+			will-change: transform;
 		}
 
 		.preloader-gap {
