@@ -3,9 +3,39 @@
 	import '../app.css';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { Preloader } from '$lib/motion-core';
 
 	let { children } = $props();
 
+	/* ── Preloader state ── */
+	const preloaderImages = [
+		{ src: '/images/preloader/logo-variant-1.png', alt: 'Elleven Media — Thin Sans' },
+		{ src: '/images/preloader/logo-variant-2.png', alt: 'Elleven Media — Bold Serif' },
+		{ src: '/images/preloader/logo-main.png', alt: 'Elleven Media' },
+		{ src: '/images/preloader/logo-variant-4.png', alt: 'Elleven Media — Extended' },
+		{ src: '/images/preloader/logo-variant-5.png', alt: 'Elleven Media — Modern Serif' },
+	];
+
+	let showPreloader = $state(false);
+
+	function handlePreloaderComplete() {
+		showPreloader = false;
+		document.body.style.overflow = '';
+		sessionStorage.setItem('elleven_preloader_seen', '1');
+	}
+
+	function portal(node: HTMLElement) {
+		document.body.appendChild(node);
+		return {
+			destroy() {
+				if (node.parentNode) {
+					node.parentNode.removeChild(node);
+				}
+			},
+		};
+	}
+
+	/* ── Nav state ── */
 	const navItems = [
 		{ label: 'Home', href: '/' },
 		{ label: 'Contact', href: '/contact' },
@@ -40,6 +70,13 @@
 	});
 
 	onMount(() => {
+		/* Check if preloader has already been seen this session */
+		const seen = sessionStorage.getItem('elleven_preloader_seen');
+		if (!seen) {
+			showPreloader = true;
+			document.body.style.overflow = 'hidden';
+		}
+
 		setTimeout(setPill, 0);
 		window.addEventListener('resize', setPill);
 		return () => window.removeEventListener('resize', setPill);
@@ -48,39 +85,52 @@
 
 <svelte:head><title>EllevenMedia — Premium Digital Media Studio</title></svelte:head>
 
-<nav class="pill-nav" id="menu">
-	<div class="pill-nav-content">
-		<div class="pill" bind:this={pill}></div>
-		<div class="pill-items" bind:this={itemsContainer}>
-
-			{#each navItems as item, i}
-				<a
-					href={item.href}
-					class="pill-item"
-					class:active={selected === i}
-					bind:this={itemEls[i]}
-				>
-					{item.label}
-				</a>
-			{/each}
-		</div>
+<!-- ── Preloader ── -->
+{#if showPreloader}
+	<div use:portal>
+		<Preloader
+			class="bg-black"
+			images={preloaderImages}
+			onComplete={handlePreloaderComplete}
+		/>
 	</div>
-</nav>
+{/if}
 
-{@render children()}
+<!-- ── Site Content ── -->
+	<nav class="pill-nav" id="menu">
+		<div class="pill-nav-content">
+			<div class="pill" bind:this={pill}></div>
+			<div class="pill-items" bind:this={itemsContainer}>
 
-<footer class="footer">
-	<div class="container footer-inner">
-		<a href="/" class="footer-brand" aria-label="Elleven Media Home">
-			<img src="/logo.svg" alt="Elleven Media" class="footer-logo-img" />
-		</a>
-		<div class="footer-links">
-			<a href="/privacy">Privacy Policy</a>
-			<a href="/terms">Terms of Service</a>
+				{#each navItems as item, i}
+					<a
+						href={item.href}
+						class="pill-item"
+						class:active={selected === i}
+						bind:this={itemEls[i]}
+					>
+						{item.label}
+					</a>
+				{/each}
+			</div>
 		</div>
-		<p class="footer-copy">© {new Date().getFullYear()} elleven media. All rights reserved.</p>
-	</div>
-</footer>
+	</nav>
+
+	{@render children()}
+
+	<footer class="footer">
+		<div class="container footer-inner">
+			<a href="/" class="footer-brand" aria-label="Elleven Media Home">
+				<img src="/logo.svg" alt="Elleven Media" class="footer-logo-img" />
+			</a>
+			<div class="footer-links">
+				<a href="/privacy">Privacy Policy</a>
+				<a href="/terms">Terms of Service</a>
+			</div>
+			<p class="footer-copy">© {new Date().getFullYear()} elleven media. All rights reserved.</p>
+		</div>
+	</footer>
+
 
 <style>
 	/* ── Pill Nav ── */
