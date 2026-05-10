@@ -1,22 +1,69 @@
 <script lang="ts">
 	import './layout.css';
 	import '../app.css';
+	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
 	let { children } = $props();
+
+	const navItems = [
+		{ label: 'Home', href: '/' },
+		{ label: 'Contact', href: '/contact' },
+	];
+
+	let selected = $state(0);
+
+	$effect(() => {
+		const path = $page.url.pathname;
+		if (path === '/contact') selected = 1;
+		else selected = 0;
+	});
+
+	let pill: HTMLDivElement;
+	let itemsContainer: HTMLDivElement;
+	let itemEls: HTMLAnchorElement[] = [];
+
+	function setPill() {
+		if (!pill || !itemsContainer || !itemEls[selected]) return;
+		const el = itemEls[selected];
+		const dims = el.getBoundingClientRect();
+		const parentLeft = itemsContainer.getBoundingClientRect().left;
+		pill.style.width = dims.width + 'px';
+		pill.style.height = dims.height + 'px';
+		pill.style.left = (dims.left - parentLeft) + 'px';
+	}
+
+	$effect(() => {
+		// re-run when selected changes
+		selected;
+		setPill();
+	});
+
+	onMount(() => {
+		setTimeout(setPill, 0);
+		window.addEventListener('resize', setPill);
+		return () => window.removeEventListener('resize', setPill);
+	});
 </script>
 
 <svelte:head><title>EllevenMedia — Premium Digital Media Studio</title></svelte:head>
 
-<nav class="nav">
-	<div class="nav-inner container">
-		<a href="/" class="logo">ELLEVEN<span>MEDIA</span></a>
+<nav class="pill-nav" id="menu">
+	<div class="pill-nav-content">
+		<div class="pill" bind:this={pill}></div>
+		<div class="pill-items" bind:this={itemsContainer}>
 
-		<ul class="nav-links">
-			<li><a href="#services">Services</a></li>
-			<li><a href="#work">Work</a></li>
-			<li><a href="#about">About</a></li>
-			<li><a href="#contact" class="nav-cta">Get in Touch</a></li>
-		</ul>
+			{#each navItems as item, i}
+				<a
+					href={item.href}
+					class="pill-item"
+					class:active={selected === i}
+					bind:this={itemEls[i]}
+				>
+					{item.label}
+				</a>
+			{/each}
+		</div>
 	</div>
 </nav>
 
@@ -24,75 +71,75 @@
 
 <footer class="footer">
 	<div class="container footer-inner">
-		<p class="footer-logo">ELLEVEN<span>MEDIA</span></p>
+		<a href="/" aria-label="EllevenMedia Home">
+			<img src="/logo.svg" alt="EllevenMedia" class="footer-logo-img" />
+		</a>
+		<div class="footer-links">
+			<a href="/privacy">Privacy Policy</a>
+			<a href="/terms">Terms of Service</a>
+		</div>
 		<p class="footer-copy">© {new Date().getFullYear()} EllevenMedia. All rights reserved.</p>
 	</div>
 </footer>
 
 <style>
-	.nav {
+	/* ── Pill Nav ── */
+	.pill-nav {
 		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
+		top: 1.25rem;
+		left: 50%;
+		transform: translateX(-50%);
 		z-index: 100;
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
-		background: rgba(0, 0, 0, 0.6);
-		border-bottom: var(--border-thin);
 	}
 
-	.nav-inner {
+
+
+	.pill-nav-content {
+		position: relative;
+	}
+
+	.pill {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		left: 0;
+		background-color: #000;
+		border-radius: 2rem;
+		transition: left 0.5s ease, width 0.5s ease;
+		pointer-events: none;
+	}
+
+	.pill-items {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		height: var(--nav-height);
+		background-color: #fff;
+		border-radius: 2rem;
+		box-shadow: 0px 0px 0px 4px #fff;
 	}
 
-	.logo {
+	.pill-item {
+		padding: 0.75rem 1.25rem;
+		border-radius: 2rem;
+		cursor: pointer;
+		z-index: 1;
+		transition: color 1s ease;
 		font-family: var(--font-sans);
-		font-size: 1.25rem;
-		font-weight: 700;
-		letter-spacing: 0.15em;
-		color: var(--color-white);
-	}
-
-	.logo span {
-		font-weight: 300;
-		opacity: 0.6;
-	}
-
-	.nav-links {
-		display: flex;
-		align-items: center;
-		gap: var(--space-xl);
-		list-style: none;
-	}
-
-	.nav-links a {
 		font-size: 0.85rem;
 		font-weight: 500;
-		letter-spacing: 0.05em;
-		text-transform: uppercase;
-		color: var(--color-gray-300);
-		transition: color var(--duration-fast) var(--ease-out);
+		letter-spacing: 0.03em;
+		color: #000;
+		user-select: none;
+		white-space: nowrap;
 	}
 
-	.nav-links a:hover {
-		color: var(--color-white);
+	.pill-item.active {
+		color: #fff;
 	}
 
-	.nav-cta {
-		padding: 0.6rem 1.4rem;
-		border: 1px solid var(--color-white);
-		transition: all var(--duration-fast) var(--ease-out);
+	.pill-item:not(.active):hover {
+		color: rgb(127, 127, 127);
 	}
 
-	.nav-cta:hover {
-		background: var(--color-white);
-		color: var(--color-black) !important;
-	}
-
+	/* ── Footer ── */
 	.footer {
 		border-top: var(--border-thin);
 		padding: var(--space-2xl) 0;
@@ -104,16 +151,17 @@
 		justify-content: space-between;
 	}
 
-	.footer-logo {
-		font-family: var(--font-sans);
-		font-size: 1rem;
-		font-weight: 700;
-		letter-spacing: 0.15em;
+	.footer-logo-img {
+		height: 28px;
+		width: auto;
+		object-fit: contain;
+		filter: brightness(0) invert(1);
+		opacity: 0.8;
+		transition: opacity var(--duration-fast) var(--ease-out);
 	}
 
-	.footer-logo span {
-		font-weight: 300;
-		opacity: 0.6;
+	.footer-logo-img:hover {
+		opacity: 1;
 	}
 
 	.footer-copy {
@@ -121,17 +169,34 @@
 		color: var(--color-gray-500);
 	}
 
+	.footer-links {
+		display: flex;
+		gap: var(--space-xl);
+		font-size: 0.8rem;
+	}
+
+	.footer-links a {
+		color: var(--color-gray-400);
+		transition: color var(--duration-fast) var(--ease-out);
+	}
+
+	.footer-links a:hover {
+		color: var(--color-white);
+	}
+
 	@media (max-width: 768px) {
-		.nav-links {
-			gap: var(--space-md);
-		}
-		.nav-links a {
+		.pill-item {
+			padding: 0.6rem 0.9rem;
 			font-size: 0.75rem;
 		}
+
 		.footer-inner {
 			flex-direction: column;
 			gap: var(--space-md);
 			text-align: center;
+		}
+		.footer-links {
+			gap: var(--space-md);
 		}
 	}
 </style>

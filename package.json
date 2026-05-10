@@ -25,6 +25,7 @@
 	},
 	"dependencies": {
 		"clsx": "^2.1.1",
+		"ogl": "^1.0.11",
 		"tailwind-merge": "^3.5.0"
 	}
 }
