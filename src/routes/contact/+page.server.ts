@@ -29,7 +29,7 @@ export const actions = {
 			<h2>New Contact Form Submission</h2>
 			<table style="border-collapse:collapse;width:100%;max-width:600px;font-family:sans-serif;">
 				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Name</td><td style="padding:12px;border-bottom:1px solid #eee;">${name}</td></tr>
-				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Email</td><td style="padding:12px;border-bottom:1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Email</td><td style="padding:12px;border-bottom:1px solid #eee;">${email}</td></tr>
 				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Subject</td><td style="padding:12px;border-bottom:1px solid #eee;">${subject || '(none provided)'}</td></tr>
 				<tr><td style="padding:12px;border-bottom:1px solid #eee;font-weight:700;white-space:nowrap;vertical-align:top;">Message</td><td style="padding:12px;border-bottom:1px solid #eee;white-space:pre-wrap;">${message}</td></tr>
 			</table>
