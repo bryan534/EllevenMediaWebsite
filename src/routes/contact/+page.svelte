@@ -117,19 +117,19 @@
 						</select>
 					</div>
 
-					<div class="form-group">
+					<div class="form-group floating">
+						<input type="text" id="name" name="name" value={form?.name ?? ''} required placeholder=" " autocomplete="name" />
 						<label for="name">Name</label>
-						<input type="text" id="name" name="name" value={form?.name ?? ''} required placeholder="Jane Doe" autocomplete="name" />
 					</div>
 
-					<div class="form-group">
+					<div class="form-group floating">
+						<input type="email" id="email" name="email" value={form?.email ?? ''} required placeholder=" " autocomplete="email" />
 						<label for="email">Email</label>
-						<input type="email" id="email" name="email" value={form?.email ?? ''} required placeholder="jane@example.com" autocomplete="email" />
 					</div>
 
-					<div class="form-group">
+					<div class="form-group floating">
+						<textarea id="message" name="message" rows="5" required placeholder=" ">{form?.message ?? ''}</textarea>
 						<label for="message">Message</label>
-						<textarea id="message" name="message" rows="5" required placeholder="Tell us about your project...">{form?.message ?? ''}</textarea>
 					</div>
 
 					<p class="form-disclaimer">
@@ -252,10 +252,13 @@
 
 	/* Form */
 	.contact-form-wrapper {
-		background: var(--color-gray-900);
+		background: rgba(13, 13, 13, 0.5);
+		backdrop-filter: blur(16px);
+		-webkit-backdrop-filter: blur(16px);
 		padding: var(--space-3xl);
 		border-radius: 12px;
-		border: 1px solid rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 		display: grid;
 		overflow: hidden;
 	}
@@ -276,12 +279,50 @@
 		gap: var(--space-xs);
 	}
 
+	.form-group.floating {
+		position: relative;
+		gap: 0;
+	}
+
+	.form-group:not(.floating) label {
+		margin-bottom: var(--space-xs);
+		margin-left: 0.2rem;
+	}
+
 	label {
 		font-size: 0.85rem;
 		font-weight: 500;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		color: var(--color-gray-400);
+	}
+
+	.form-group.floating label {
+		position: absolute;
+		left: 1rem;
+		top: 1.1rem;
+		font-size: 1rem;
+		text-transform: none;
+		letter-spacing: normal;
+		color: var(--color-gray-500);
+		pointer-events: none;
+		transition: all var(--duration-fast) var(--ease-out);
+		background: transparent;
+	}
+
+	.form-group.floating input:focus ~ label,
+	.form-group.floating input:not(:placeholder-shown) ~ label,
+	.form-group.floating textarea:focus ~ label,
+	.form-group.floating textarea:not(:placeholder-shown) ~ label {
+		top: -0.6rem;
+		left: 0.8rem;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--color-white);
+		background: rgba(13, 13, 13, 0.9);
+		padding: 0 0.4rem;
+		border-radius: 4px;
 	}
 
 	input, textarea {
@@ -296,7 +337,7 @@
 	}
 
 	input::placeholder, textarea::placeholder {
-		color: var(--color-gray-600);
+		color: transparent;
 	}
 
 	input:focus, textarea:focus {
