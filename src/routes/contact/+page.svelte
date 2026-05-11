@@ -456,13 +456,43 @@
 			font-size: 1rem;
 		}
 
+		/* tighten left column section spacing */
+		.services-block {
+			margin-bottom: var(--space-xl);
+		}
+
+		.clients-block {
+			margin-top: var(--space-xl);
+		}
+
+		/* more breathing room in service items for touch scanning */
+		.services-list li {
+			padding: var(--space-xs) 0;
+			font-size: 1rem;
+		}
+
+		/* form card */
 		.contact-form-wrapper {
 			padding: var(--space-lg);
 		}
 
+		/* taller inputs for touch */
+		input, textarea, select {
+			padding: 1.1rem;
+			font-size: 1rem;
+		}
+
+		/* full-width submit, generous tap target */
 		.submit-btn {
 			width: 100%;
 			text-align: center;
+			padding: 1.2rem 2rem;
+			font-size: 0.9rem;
+		}
+
+		/* disclaimer legible on small screens */
+		.form-disclaimer {
+			font-size: 0.65rem;
 		}
 
 		.clients-logos {
