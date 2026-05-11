@@ -31,14 +31,12 @@
 	}
 
 	/* ── Nav state ── */
-	const siteUrl = 'https://ellevenmediagroup.com';
 	const navItems = [
 		{ label: 'Home', href: '/' },
 		{ label: 'Contact', href: '/contact' },
 	];
 
 	let selected = $state(0);
-	let canonicalUrl = $derived(`${siteUrl}${$page.url.pathname}`);
 
 	$effect(() => {
 		const path = $page.url.pathname;
@@ -96,31 +94,12 @@
 </script>
 
 <svelte:head>
-  <title>elleven media — premium digital media studio</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
   <link rel="icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
-  <link rel="canonical" href={canonicalUrl} />
-
-  <!-- OpenGraph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="EllevenMedia" />
-  <meta property="og:title" content="EllevenMedia — Premium Digital Media Studio" />
-  <meta property="og:description" content="EllevenMedia — Premium digital media & web design studio crafting elevated online experiences for individuals and brands." />
-  <meta property="og:image" content="https://ellevenmediagroup.com/og-image.png" />
-  <meta property="og:image:alt" content="EllevenMedia brand mark on a black background" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:url" content={canonicalUrl} />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="EllevenMedia — Premium Digital Media Studio" />
-  <meta name="twitter:description" content="EllevenMedia — Premium digital media & web design studio crafting elevated online experiences for individuals and brands." />
-  <meta name="twitter:image" content="https://ellevenmediagroup.com/og-image.png" />
-  <meta name="twitter:image:alt" content="EllevenMedia brand mark on a black background" />
+  <meta name="application-name" content="Elleven Media" />
 </svelte:head>
 
 <!-- ── Preloader ── -->

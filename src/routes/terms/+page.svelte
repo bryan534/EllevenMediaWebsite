@@ -1,7 +1,10 @@
-<svelte:head>
-	<title>terms of service — elleven media</title>
-	<meta name="description" content="Review the Elleven Media terms of service for website use, client services, intellectual property, payments, and legal notices." />
-</svelte:head>
+<script lang="ts">
+	import Seo from '$lib/Seo.svelte';
+
+	const description = 'Review the Elleven Media terms of service for website use, client services, intellectual property, payments, and legal notices.';
+</script>
+
+<Seo title="Terms of Service | Elleven Media" {description} path="/terms" />
 
 <section class="legal-section">
 	<div class="container legal-container">

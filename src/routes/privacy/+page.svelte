@@ -1,7 +1,10 @@
-<svelte:head>
-	<title>privacy policy — elleven media</title>
-	<meta name="description" content="Read the Elleven Media privacy policy for details on how contact, website, and service-related information is collected, used, and protected." />
-</svelte:head>
+<script lang="ts">
+	import Seo from '$lib/Seo.svelte';
+
+	const description = 'Read the Elleven Media privacy policy for how contact, website, and service information is collected, used, and protected.';
+</script>
+
+<Seo title="Privacy Policy | Elleven Media" {description} path="/privacy" />
 
 <section class="legal-section">
 	<div class="container legal-container">

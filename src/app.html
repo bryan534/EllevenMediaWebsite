@@ -7,10 +7,43 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+		<script type="application/ld+json">
+			{
+				"@context": "https://schema.org",
+				"@graph": [
+					{
+						"@type": "Organization",
+						"@id": "https://ellevenmediagroup.com/#organization",
+						"name": "Elleven Media Group",
+						"alternateName": "Elleven Media",
+						"url": "https://ellevenmediagroup.com/",
+						"logo": "https://ellevenmediagroup.com/logo.png",
+						"image": "https://ellevenmediagroup.com/og-image.png",
+						"email": "hello@ellevenmediagroup.com",
+						"address": {
+							"@type": "PostalAddress",
+							"addressRegion": "CA",
+							"addressCountry": "US"
+						}
+					},
+					{
+						"@type": "WebSite",
+						"@id": "https://ellevenmediagroup.com/#website",
+						"name": "Elleven Media",
+						"url": "https://ellevenmediagroup.com/",
+						"description": "Premium web design and digital media studio for individuals and growing brands.",
+						"publisher": {
+							"@id": "https://ellevenmediagroup.com/#organization"
+						}
+					}
+				]
+			}
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
-		<script>try{if(!sessionStorage.getItem('elleven_preloader_seen'))document.documentElement.style.visibility='hidden'}catch(e){}</script>
+		<script>try{if(!sessionStorage.getItem('elleven_preloader_seen')){document.documentElement.style.visibility='hidden';setTimeout(function(){document.documentElement.style.visibility=''},3500)}}catch(e){document.documentElement.style.visibility=''}</script>
+		<noscript><style>html{visibility:visible!important}</style></noscript>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

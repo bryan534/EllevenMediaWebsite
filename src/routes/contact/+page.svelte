@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
 	import { enhance } from '$app/forms';
 	import { fade, fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
@@ -20,12 +21,10 @@
 		'DevOps & Deployment',
 		'General Inquiry',
 	];
+	const description = 'Contact Elleven Media for web design, SEO, performance, hosting, email, domains, DevOps, and deployment support for your next digital project.';
 </script>
 
-<svelte:head>
-	<title>contact — elleven media</title>
-	<meta name="description" content="Get in touch with EllevenMedia for your next digital project." />
-</svelte:head>
+<Seo title="Contact Elleven Media | Web Design, SEO & Hosting" {description} path="/contact" />
 
 <section class="contact-section">
 	<div class="container contact-container">

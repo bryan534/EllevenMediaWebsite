@@ -1,10 +1,11 @@
 <script lang="ts">
+	import Seo from '$lib/Seo.svelte';
 	import { PlasmaGrid, TextLoop } from "$lib/motion-core";
+
+	const description = 'Elleven Media builds premium websites, brand experiences, SEO, performance, hosting, and deployment support for individuals and growing brands.';
 </script>
 
-<svelte:head>
-	<meta name="description" content="EllevenMedia crafts premium websites and digital experiences for individuals and brands." />
-</svelte:head>
+<Seo title="Elleven Media | Premium Web Design & Digital Media Studio" {description} path="/" />
 
 <!-- ── Hero ── -->
 <section class="hero" id="hero">
