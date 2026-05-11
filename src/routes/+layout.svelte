@@ -95,7 +95,14 @@
 	});
 </script>
 
-<svelte:head><title>EllevenMedia — Premium Digital Media Studio</title></svelte:head>
+<svelte:head>
+  <title>EllevenMedia — Premium Digital Media Studio</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+</svelte:head>
 
 <!-- ── Preloader ── -->
 {#if showPreloader}
@@ -133,7 +140,7 @@
 	<footer class="footer">
 		<div class="container footer-inner">
 			<a href="/" class="footer-brand" aria-label="Elleven Media Home">
-				<img src="/logo.svg" alt="Elleven Media" class="footer-logo-img" />
+				<img src="/logo-hero.svg" alt="Elleven Media" class="footer-logo-img" />
 			</a>
 			<div class="footer-links">
 				<a href="/privacy">Privacy Policy</a>

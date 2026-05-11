@@ -12,7 +12,7 @@
 		<PlasmaGrid color="#000000" highlightColor="#ffffff" />
 	</div>
 	<div class="container hero-content">
-		<img src="/logo.svg" alt="EllevenMedia Full Logo" class="hero-main-logo" />
+		<img src="/logo-hero.svg" alt="EllevenMedia Full Logo" class="hero-main-logo" />
 		<h1 class="hero-minimal-title">Digital Media Studio</h1>
 		<p class="hero-minimal-sub">
 			Crafting premium digital experiences for brands that refuse to blend in.
