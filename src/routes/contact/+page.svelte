@@ -70,6 +70,8 @@
 				>
 					{#if form?.missing}
 						<div class="error-message">Please fill in all required fields.</div>
+					{:else if form?.error}
+						<div class="error-message">Something went wrong sending your message. Please try again or email us directly at <a href="mailto:hello@ellevenmediagroup.com">hello@ellevenmediagroup.com</a>.</div>
 					{/if}
 
 					<!-- Honeypot Field -->
@@ -269,6 +271,11 @@
 		padding: 1rem;
 		border-radius: 6px;
 		border: 1px solid rgba(255, 107, 107, 0.2);
+	}
+
+	.error-message a {
+		color: #ff9a9a;
+		text-decoration: underline;
 	}
 
 	.success-message {

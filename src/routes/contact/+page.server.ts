@@ -5,7 +5,6 @@ import { env } from '$env/dynamic/private';
 
 export const actions = {
 	default: async ({ request }) => {
-		const resend = new Resend(env.RESEND_API_KEY);
 		const data = await request.formData();
 		const name = data.get('name')?.toString();
 		const email = data.get('email')?.toString();
@@ -36,16 +35,22 @@ export const actions = {
 			</table>
 		`;
 
-		const { error } = await resend.emails.send({
-			from: env.CONTACT_FROM_EMAIL,
-			to: env.CONTACT_TO_EMAIL,
-			replyTo: email,
-			subject: emailSubject,
-			html,
-		});
+		try {
+			const resend = new Resend(env.RESEND_API_KEY);
+			const { error } = await resend.emails.send({
+				from: env.CONTACT_FROM_EMAIL,
+				to: env.CONTACT_TO_EMAIL,
+				replyTo: email,
+				subject: emailSubject,
+				html,
+			});
 
-		if (error) {
-			console.error('Failed to send contact email:', error);
+			if (error) {
+				console.error('Failed to send contact email:', error);
+				return fail(500, { name, email, subject, message, error: true });
+			}
+		} catch (err) {
+			console.error('Contact form exception:', err);
 			return fail(500, { name, email, subject, message, error: true });
 		}
 
