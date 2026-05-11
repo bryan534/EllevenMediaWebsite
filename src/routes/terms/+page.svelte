@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>Terms of Service — Elleven Media</title>
+	<title>terms of service — elleven media</title>
 </svelte:head>
 
 <section class="legal-section">

@@ -1,5 +1,5 @@
 <svelte:head>
-	<title>Privacy Policy — Elleven Media</title>
+	<title>privacy policy — elleven media</title>
 </svelte:head>
 
 <section class="legal-section">

@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-	<title>Contact — EllevenMedia</title>
+	<title>contact — elleven media</title>
 	<meta name="description" content="Get in touch with EllevenMedia for your next digital project." />
 </svelte:head>
 
