@@ -1,5 +1,6 @@
 <svelte:head>
 	<title>terms of service — elleven media</title>
+	<meta name="description" content="Review the Elleven Media terms of service for website use, client services, intellectual property, payments, and legal notices." />
 </svelte:head>
 
 <section class="legal-section">

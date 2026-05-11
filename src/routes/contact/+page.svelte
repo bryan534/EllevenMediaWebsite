@@ -3,10 +3,10 @@
 	import { fade, fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	import type { ActionData } from './$types';
-	import bornxcreate from '$lib/images/clients/bazaart.webp?enhanced';
-	import ironbreed from '$lib/images/clients/ironbreed.png?enhanced';
-	import jb from '$lib/images/clients/jb.png?enhanced';
-	import bbdecorations from '$lib/images/clients/bblogowhite.png?enhanced';
+	import bornxcreate from '$lib/images/clients/bornxcreate.webp';
+	import ironbreed from '$lib/images/clients/ironbreed.webp';
+	import jb from '$lib/images/clients/jb.webp';
+	import bbdecorations from '$lib/images/clients/bbdecorations.webp';
 
 	let { form } = $props<{ form: ActionData }>();
 	
@@ -51,12 +51,12 @@
 				<p class="block-label">Trusted By</p>
 				<div class="clients-logos">
 					<a href="https://www.bornxcreate.shop" target="_blank" rel="noopener noreferrer" aria-label="Visit BORNXCREATE">
-						<enhanced:img src={bornxcreate} alt="BORNXCREATE" sizes="100px" />
+						<img src={bornxcreate} alt="BORNXCREATE" width="360" height="150" loading="lazy" decoding="async" />
 					</a>
-					<enhanced:img src={ironbreed} alt="IronBreed" class="no-invert" sizes="100px" />
-					<enhanced:img src={jb} alt="Johnathan Bernal" sizes="100px" />
+					<img src={ironbreed} alt="IronBreed" class="no-invert" width="320" height="214" loading="lazy" decoding="async" />
+					<img src={jb} alt="Johnathan Bernal" width="320" height="213" loading="lazy" decoding="async" />
 					<a href="https://bbdecorations.com" target="_blank" rel="noopener noreferrer" aria-label="Visit B&B Decorations">
-						<enhanced:img src={bbdecorations} alt="B&amp;B Decorations" sizes="100px" />
+						<img src={bbdecorations} alt="B&amp;B Decorations" width="360" height="164" loading="lazy" decoding="async" />
 					</a>
 				</div>
 			</div>
@@ -109,8 +109,8 @@
 
 					<div class="form-group">
 						<label for="inquiry">Inquiry Type</label>
-						<select id="inquiry" name="inquiry" value={form?.inquiry ?? ''}>
-							<option value="" disabled selected>Select an inquiry type</option>
+						<select id="inquiry" name="inquiry" value={form?.inquiry ?? ''} required>
+							<option value="" disabled>Select an inquiry type</option>
 							{#each inquiryTypes as type}
 								<option value={type}>{type}</option>
 							{/each}
@@ -127,7 +127,7 @@
 						<input type="email" id="email" name="email" value={form?.email ?? ''} required placeholder="jane@example.com" autocomplete="email" />
 					</div>
 
-<div class="form-group">
+					<div class="form-group">
 						<label for="message">Message</label>
 						<textarea id="message" name="message" rows="5" required placeholder="Tell us about your project...">{form?.message ?? ''}</textarea>
 					</div>
@@ -340,15 +340,15 @@
 	}
 
 	.form-disclaimer {
-		font-size: 0.55rem;
-		color: var(--color-gray-600);
-		line-height: 1.5;
+		font-size: 0.7rem;
+		color: var(--color-gray-500);
+		line-height: 1.55;
 		margin-top: calc(-1 * var(--space-xl) + var(--space-xs));
 		text-align: center;
 	}
 
 	.form-disclaimer a {
-		color: var(--color-gray-500);
+		color: var(--color-gray-300);
 		text-decoration: underline;
 		text-underline-offset: 2px;
 		transition: color var(--duration-fast) var(--ease-out);
@@ -490,20 +490,26 @@
 			font-size: 0.9rem;
 		}
 
-		/* disclaimer legible on small screens */
 		.form-disclaimer {
-			font-size: 0.65rem;
+			font-size: 0.72rem;
 		}
 
 		.clients-logos {
-			flex-wrap: nowrap;
-			justify-content: space-between;
-			gap: var(--space-sm);
+			display: grid;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: var(--space-md) var(--space-lg);
+		}
+
+		.clients-logos a {
+			justify-content: center;
+			min-height: 48px;
 		}
 
 		.clients-logos :global(img) {
-			height: 40px;
-			flex-shrink: 1;
+			height: 42px;
+			max-width: 100%;
+			margin: 0 auto;
+			flex-shrink: 0;
 		}
 	}
 </style>

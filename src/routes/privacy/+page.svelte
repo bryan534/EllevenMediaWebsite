@@ -1,5 +1,6 @@
 <svelte:head>
 	<title>privacy policy — elleven media</title>
+	<meta name="description" content="Read the Elleven Media privacy policy for details on how contact, website, and service-related information is collected, used, and protected." />
 </svelte:head>
 
 <section class="legal-section">

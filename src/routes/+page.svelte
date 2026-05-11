@@ -57,7 +57,8 @@
 		position: absolute;
 		inset: 0;
 		background:
-			radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 100%);
+			radial-gradient(ellipse 70% 45% at 50% 56%, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.48) 42%, transparent 78%),
+			radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
 		pointer-events: none;
 	}
 
@@ -93,7 +94,8 @@
 		margin: 0 auto var(--space-2xl);
 		font-size: 1rem;
 		line-height: 1.6;
-		color: var(--color-gray-400);
+		color: rgba(255, 255, 255, 0.78);
+		text-shadow: 0 2px 18px rgba(0, 0, 0, 0.85);
 	}
 
 	.hero-actions {
