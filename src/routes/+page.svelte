@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PlasmaGrid } from "$lib/motion-core";
+	import { PlasmaGrid, TextLoop } from "$lib/motion-core";
 </script>
 
 <svelte:head>
@@ -13,12 +13,17 @@
 	</div>
 	<div class="container hero-content">
 		<img src="/logo-hero.svg" alt="EllevenMedia Full Logo" class="hero-main-logo" />
-		<h1 class="hero-minimal-title">Digital Media Studio</h1>
+		<h1 class="hero-minimal-title">
+			<TextLoop
+				texts={["Digital Media Studio", "Premium Web Design", "Brand Experiences", "Creative Development"]}
+				interval={2500}
+			/>
+		</h1>
 		<p class="hero-minimal-sub">
-			Crafting premium digital experiences for brands that refuse to blend in.
+			Premium execution across every layer of your digital presence. From design to deployment — everything your brand needs online.
 		</p>
 		<div class="hero-actions">
-			<a href="/contact" class="btn btn-primary">Start a Project</a>
+			<a href="/contact" class="btn btn-primary">Get Started</a>
 		</div>
 	</div>
 	<div class="hero-fade"></div>
@@ -84,7 +89,7 @@
 	}
 
 	.hero-minimal-sub {
-		max-width: 480px;
+		max-width: 640px;
 		margin: 0 auto var(--space-2xl);
 		font-size: 1rem;
 		line-height: 1.6;
