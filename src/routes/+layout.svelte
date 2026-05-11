@@ -4,23 +4,17 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { afterNavigate } from '$app/navigation';
-	import { Preloader } from '$lib/motion-core';
+	import { SvgPreloader } from '$lib/motion-core';
 
 	let { children } = $props();
 
 	/* ── Preloader state ── */
-	const preloaderImages = [
-		{ src: '/images/preloader/logo-variant-1.png', alt: 'Elleven Media — Thin Sans' },
-		{ src: '/images/preloader/logo-variant-2.png', alt: 'Elleven Media — Bold Serif' },
-		{ src: '/images/preloader/logo-main.png', alt: 'Elleven Media' },
-		{ src: '/images/preloader/logo-variant-4.png', alt: 'Elleven Media — Extended' },
-		{ src: '/images/preloader/logo-variant-5.png', alt: 'Elleven Media — Modern Serif' },
-	];
-
 	let showPreloader = $state(false);
+	let pageVisible = $state(false);
 
 	function handlePreloaderComplete() {
 		showPreloader = false;
+		pageVisible = true;
 		document.body.style.overflow = '';
 		sessionStorage.setItem('elleven_preloader_seen', '1');
 	}
@@ -79,19 +73,23 @@
 		setPill(true);
 	});
 
+	function handleResize() {
+		setPill();
+	}
+
 	onMount(() => {
-		/* Check if preloader has already been seen this session */
 		const seen = sessionStorage.getItem('elleven_preloader_seen');
 		if (!seen) {
 			showPreloader = true;
 			document.body.style.overflow = 'hidden';
+		} else {
+			pageVisible = true;
 		}
-		/* Reveal page — preloader (black, fixed, z-999) covers it if needed */
 		document.documentElement.style.visibility = '';
 
 		setTimeout(setPill, 0);
-		window.addEventListener('resize', setPill);
-		return () => window.removeEventListener('resize', setPill);
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
 	});
 </script>
 
@@ -123,15 +121,12 @@
 <!-- ── Preloader ── -->
 {#if showPreloader}
 	<div use:portal>
-		<Preloader
-			class="bg-black"
-			images={preloaderImages}
-			onComplete={handlePreloaderComplete}
-		/>
+		<SvgPreloader onComplete={handlePreloaderComplete} />
 	</div>
 {/if}
 
 <!-- ── Site Content ── -->
+<div class="page-content" class:page-content--visible={pageVisible}>
 	<nav class="pill-nav" id="menu">
 		<div class="pill-nav-content">
 			<div class="pill" bind:this={pill}></div>
@@ -165,9 +160,19 @@
 			<p class="footer-copy">© {new Date().getFullYear()} elleven media. All rights reserved.</p>
 		</div>
 	</footer>
-
+</div>
 
 <style>
+	/* ── Page fade-in ── */
+	.page-content {
+		opacity: 0;
+		transition: opacity 0.6s ease;
+	}
+
+	.page-content--visible {
+		opacity: 1;
+	}
+
 	/* ── Pill Nav ── */
 	.pill-nav {
 		position: fixed;

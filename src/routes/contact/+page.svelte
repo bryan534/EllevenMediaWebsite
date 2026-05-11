@@ -50,12 +50,12 @@
 			<div class="clients-block">
 				<p class="block-label">Trusted By</p>
 				<div class="clients-logos">
-					<a href="https://www.bornxcreate.shop" target="_blank" rel="noopener noreferrer">
+					<a href="https://www.bornxcreate.shop" target="_blank" rel="noopener noreferrer" aria-label="Visit BORNXCREATE">
 						<enhanced:img src={bornxcreate} alt="BORNXCREATE" sizes="100px" />
 					</a>
 					<enhanced:img src={ironbreed} alt="IronBreed" class="no-invert" sizes="100px" />
 					<enhanced:img src={jb} alt="Johnathan Bernal" sizes="100px" />
-					<a href="https://bbdecorations.com" target="_blank" rel="noopener noreferrer">
+					<a href="https://bbdecorations.com" target="_blank" rel="noopener noreferrer" aria-label="Visit B&B Decorations">
 						<enhanced:img src={bbdecorations} alt="B&amp;B Decorations" sizes="100px" />
 					</a>
 				</div>
@@ -228,7 +228,7 @@
 		flex-wrap: wrap;
 	}
 
-	.clients-logos img {
+	.clients-logos :global(img) {
 		height: 46px;
 		width: auto;
 		object-fit: contain;
@@ -237,7 +237,7 @@
 		transition: opacity var(--duration-fast) var(--ease-out);
 	}
 
-	.clients-logos img:hover {
+	.clients-logos :global(img:hover) {
 		opacity: 1;
 	}
 
@@ -246,7 +246,7 @@
 		align-items: center;
 	}
 
-	.clients-logos img.no-invert {
+	.clients-logos :global(img.no-invert) {
 		filter: none;
 	}
 
@@ -501,8 +501,7 @@
 			gap: var(--space-sm);
 		}
 
-		.clients-logos img,
-		.clients-logos a img {
+		.clients-logos :global(img) {
 			height: 40px;
 			flex-shrink: 1;
 		}
