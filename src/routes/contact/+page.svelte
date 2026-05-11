@@ -3,11 +3,23 @@
 	import { fade, fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	import type { ActionData } from './$types';
+	import bornxcreate from '$lib/images/clients/bazaart.webp?enhanced';
+	import ironbreed from '$lib/images/clients/ironbreed.png?enhanced';
+	import jb from '$lib/images/clients/jb.png?enhanced';
+	import bbdecorations from '$lib/images/clients/bblogowhite.png?enhanced';
 
 	let { form } = $props<{ form: ActionData }>();
 	
 	let isSubmitting = $state(false);
 	let formHeight = $state<number>(0);
+	const inquiryTypes = [
+		'New Website',
+		'SEO & Performance',
+		'Hosting & Infrastructure',
+		'Email & Domain Setup',
+		'DevOps & Deployment',
+		'General Inquiry',
+	];
 </script>
 
 <svelte:head>
@@ -21,19 +33,34 @@
 			<p class="section-tag">Get in Touch</p>
 			<h1 class="contact-title">Let's start a <em>conversation</em>.</h1>
 			<p class="contact-sub">
-				Whether you have a specific project in mind or just want to explore possibilities, we'd love to hear from you.
+				Digital experiences, built to last.
 			</p>
 			
-			<div class="contact-info">
-				<div class="info-block">
-					<h3>Email</h3>
-					<a href="mailto:hello@ellevenmediagroup.com">hello@ellevenmediagroup.com</a>
-				</div>
-				<div class="info-block">
-					<h3>Location</h3>
-					<p>Los Angeles, CA</p>
+			<div class="services-block">
+				<p class="block-label">What We Do</p>
+				<ul class="services-list">
+					<li>Web Design &amp; Development</li>
+					<li>SEO &amp; Performance</li>
+					<li>Hosting &amp; Infrastructure</li>
+					<li>Email &amp; Domain Setup</li>
+					<li>DevOps &amp; Deployment</li>
+				</ul>
+			</div>
+
+			<div class="clients-block">
+				<p class="block-label">Trusted By</p>
+				<div class="clients-logos">
+					<a href="https://www.bornxcreate.shop" target="_blank" rel="noopener noreferrer">
+						<enhanced:img src={bornxcreate} alt="BORNXCREATE" sizes="100px" />
+					</a>
+					<enhanced:img src={ironbreed} alt="IronBreed" class="no-invert" sizes="100px" />
+					<enhanced:img src={jb} alt="Johnathan Bernal" sizes="100px" />
+					<a href="https://bbdecorations.com" target="_blank" rel="noopener noreferrer">
+						<enhanced:img src={bbdecorations} alt="B&amp;B Decorations" sizes="100px" />
+					</a>
 				</div>
 			</div>
+
 		</div>
 
 		<div class="contact-form-wrapper">
@@ -81,6 +108,16 @@
 					</div>
 
 					<div class="form-group">
+						<label for="inquiry">Inquiry Type</label>
+						<select id="inquiry" name="inquiry" value={form?.inquiry ?? ''}>
+							<option value="" disabled selected>Select an inquiry type</option>
+							{#each inquiryTypes as type}
+								<option value={type}>{type}</option>
+							{/each}
+						</select>
+					</div>
+
+					<div class="form-group">
 						<label for="name">Name</label>
 						<input type="text" id="name" name="name" value={form?.name ?? ''} required placeholder="Jane Doe" autocomplete="name" />
 					</div>
@@ -90,16 +127,14 @@
 						<input type="email" id="email" name="email" value={form?.email ?? ''} required placeholder="jane@example.com" autocomplete="email" />
 					</div>
 
-					<div class="form-group">
-						<label for="subject">Subject</label>
-						<input type="text" id="subject" name="subject" value={form?.subject ?? ''} placeholder="Project Inquiry" />
-					</div>
-
-					<div class="form-group">
+<div class="form-group">
 						<label for="message">Message</label>
 						<textarea id="message" name="message" rows="5" required placeholder="Tell us about your project...">{form?.message ?? ''}</textarea>
 					</div>
 
+					<p class="form-disclaimer">
+						By submitting this form, you agree to our <a href="/privacy">Privacy Policy</a> and <a href="/terms">Terms of Use</a>. We will use your information only to respond to your inquiry and provide our services.
+					</p>
 					<button type="submit" class="btn btn-primary submit-btn" disabled={isSubmitting}>
 						{isSubmitting ? 'Sending...' : 'Send Message'}
 					</button>
@@ -146,36 +181,73 @@
 	}
 
 	.contact-sub {
-		font-size: 1.1rem;
+		font-size: 1.2rem;
 		line-height: 1.6;
-		color: var(--color-gray-400);
+		color: var(--color-white);
+		font-weight: 400;
 		margin-bottom: var(--space-2xl);
 		max-width: 90%;
 	}
 
-	.contact-info {
+	.block-label {
+		font-size: 0.75rem;
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.2em;
+		color: var(--color-gray-500);
+		margin-bottom: var(--space-md);
+	}
+
+	.services-block {
+		margin-bottom: var(--space-2xl);
+	}
+
+	.services-list {
+		list-style: none;
 		display: flex;
-		gap: var(--space-2xl);
+		flex-direction: column;
+		gap: var(--space-sm);
+		border-left: 1px solid rgba(255, 255, 255, 0.12);
+		padding-left: var(--space-lg);
+	}
+
+	.services-list li {
+		font-size: 0.95rem;
+		color: var(--color-gray-300);
+		line-height: 1.5;
+	}
+
+	.clients-block {
 		margin-top: var(--space-3xl);
 	}
 
-	.info-block h3 {
-		font-size: 0.85rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		color: var(--color-gray-500);
-		margin-bottom: var(--space-xs);
+	.clients-logos {
+		display: flex;
+		align-items: center;
+		gap: var(--space-xl);
+		flex-wrap: wrap;
 	}
 
-	.info-block a, .info-block p {
-		font-size: 1.05rem;
-		color: var(--color-white);
-		text-decoration: none;
-		transition: color var(--duration-fast) var(--ease-out);
+	.clients-logos img {
+		height: 46px;
+		width: auto;
+		object-fit: contain;
+		filter: brightness(0) invert(1);
+		opacity: 0.6;
+		transition: opacity var(--duration-fast) var(--ease-out);
 	}
 
-	.info-block a:hover {
-		color: var(--color-gray-400);
+	.clients-logos img:hover {
+		opacity: 1;
+	}
+
+	.clients-logos a {
+		display: flex;
+		align-items: center;
+	}
+
+	.clients-logos img.no-invert {
+		filter: none;
 	}
 
 	/* Form */
@@ -260,8 +332,57 @@
 	}
 
 	.submit-btn {
-		margin-top: var(--space-sm);
-		align-self: flex-start;
+		margin-top: calc(-1 * var(--space-lg));
+		align-self: stretch;
+		width: 100%;
+		text-align: center;
+		padding: 1.1rem 2rem;
+	}
+
+	.form-disclaimer {
+		font-size: 0.55rem;
+		color: var(--color-gray-600);
+		line-height: 1.5;
+		margin-top: calc(-1 * var(--space-xl) + var(--space-xs));
+		text-align: center;
+	}
+
+	.form-disclaimer a {
+		color: var(--color-gray-500);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		transition: color var(--duration-fast) var(--ease-out);
+	}
+
+	.form-disclaimer a:hover {
+		color: var(--color-gray-300);
+	}
+
+	select {
+		background: rgba(0, 0, 0, 0.2);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 6px;
+		padding: 1rem;
+		color: var(--color-white);
+		font-family: inherit;
+		font-size: 1rem;
+		cursor: pointer;
+		appearance: none;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23808080' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 1rem center;
+		transition: border-color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+	}
+
+	select:focus {
+		outline: none;
+		border-color: rgba(255, 255, 255, 0.3);
+		background-color: rgba(0, 0, 0, 0.4);
+	}
+
+	select option {
+		background: var(--color-gray-900);
+		color: var(--color-white);
 	}
 
 	.error-message {
@@ -335,19 +456,25 @@
 			font-size: 1rem;
 		}
 
-		.contact-info {
-			flex-direction: column;
-			gap: var(--space-lg);
-			margin-top: var(--space-xl);
-		}
-
 		.contact-form-wrapper {
 			padding: var(--space-lg);
 		}
-		
+
 		.submit-btn {
 			width: 100%;
 			text-align: center;
+		}
+
+		.clients-logos {
+			flex-wrap: nowrap;
+			justify-content: space-between;
+			gap: var(--space-sm);
+		}
+
+		.clients-logos img,
+		.clients-logos a img {
+			height: 40px;
+			flex-shrink: 1;
 		}
 	}
 </style>
