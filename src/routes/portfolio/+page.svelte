@@ -185,8 +185,10 @@
 <section class="portfolio-cta">
 	<div class="container portfolio-cta-inner">
 		<p class="section-tag">Next Project</p>
-		<h2>Ready to build the next featured launch?</h2>
-		<a href="/contact" class="btn btn-primary">Start a Project</a>
+		<h2 class="cta-headline">Ready to build the next featured launch?</h2>
+		<a href="/contact" class="btn btn-primary btn-massive">
+			Start a Project <span class="arrow">&rarr;</span>
+		</a>
 	</div>
 </section>
 
@@ -454,26 +456,48 @@
 	}
 
 	.portfolio-cta {
-		padding: 0 0 var(--space-5xl);
+		padding: var(--space-2xl) 0 var(--space-5xl);
+		position: relative;
+	}
+
+	.portfolio-cta::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 400px;
+		background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.03), transparent 70%);
+		pointer-events: none;
 	}
 
 	.portfolio-cta-inner {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-xl);
-		padding-top: var(--space-3xl);
+		text-align: center;
+		padding-top: var(--space-4xl);
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
 	}
 
-	.portfolio-cta h2 {
-		font-size: clamp(1.8rem, 4vw, 3.2rem);
-		line-height: 1.1;
-		max-width: 660px;
+	.portfolio-cta .section-tag {
+		margin-bottom: var(--space-xl);
+	}
+
+	.cta-headline {
+		font-family: var(--font-sans);
+		font-size: clamp(3rem, 6vw, 5.5rem);
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		line-height: 1.05;
+		max-width: 900px;
+		margin-bottom: var(--space-3xl);
 	}
 
 	.btn {
-		display: inline-block;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		padding: 0.85rem 2rem;
 		font-size: 0.85rem;
 		font-weight: 600;
@@ -485,11 +509,30 @@
 	.btn-primary {
 		background: var(--color-white);
 		color: var(--color-black);
+		border-radius: 4px;
 	}
 
-	.btn-primary:hover {
-		background: var(--color-gray-200);
-		transform: translateY(-2px);
+	.btn-massive {
+		padding: 1.25rem 3.5rem;
+		font-size: 1.1rem;
+		border-radius: 999px;
+		gap: 12px;
+		box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+		transition: all var(--duration-normal) var(--ease-out);
+	}
+	
+	.btn-massive .arrow {
+		transition: transform var(--duration-normal) var(--ease-out);
+	}
+
+	.btn-massive:hover {
+		background: var(--color-white);
+		box-shadow: 0 0 50px rgba(255, 255, 255, 0.25);
+		transform: scale(1.03) translateY(-2px);
+	}
+
+	.btn-massive:hover .arrow {
+		transform: translateX(8px);
 	}
 
 	@media (max-width: 900px) {
@@ -507,8 +550,12 @@
 		}
 
 		.portfolio-cta-inner {
-			align-items: flex-start;
-			flex-direction: column;
+			padding-top: var(--space-3xl);
+		}
+		
+		.cta-headline {
+			font-size: 2.5rem;
+			margin-bottom: var(--space-2xl);
 		}
 	}
 
