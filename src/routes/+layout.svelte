@@ -33,7 +33,7 @@
 			title: 'Studio',
 			variant: 'muted' as const,
 			links: [
-				{ label: 'Portfolio' },
+				{ label: 'Portfolio', href: '/portfolio' },
 				{ label: 'Contact', href: '/contact' },
 				{ label: 'Start a Project', href: '/contact' },
 			],

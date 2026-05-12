@@ -187,7 +187,27 @@
 
 		let raf = 0;
 		let previous = 0;
+		let isIntersecting = true;
+		let isDocumentVisible = document.visibilityState === "visible";
+
+		const stop = () => {
+			if (raf) {
+				window.cancelAnimationFrame(raf);
+				raf = 0;
+			}
+			previous = 0;
+		};
+
+		const schedule = () => {
+			if (!raf && isIntersecting && isDocumentVisible) {
+				raf = window.requestAnimationFrame(tick);
+			}
+		};
+
 		const tick = (now: number) => {
+			raf = 0;
+			if (!isIntersecting || !isDocumentVisible) return;
+
 			const w = Math.max(1, targetCanvas.clientWidth);
 			const h = Math.max(1, targetCanvas.clientHeight);
 			const bufW = Math.round(w * renderer.dpr);
@@ -205,13 +225,38 @@
 			previous = now;
 			localUniforms.uTime.value += delta * 0.5;
 			renderer.render({ scene, camera });
-			raf = window.requestAnimationFrame(tick);
+			schedule();
 		};
 
-		raf = window.requestAnimationFrame(tick);
+		const handleVisibilityChange = () => {
+			isDocumentVisible = document.visibilityState === "visible";
+			if (isDocumentVisible) {
+				schedule();
+			} else {
+				stop();
+			}
+		};
+
+		const observer =
+			typeof IntersectionObserver !== "undefined"
+				? new IntersectionObserver(([entry]) => {
+						isIntersecting = entry.isIntersecting;
+						if (isIntersecting) {
+							schedule();
+						} else {
+							stop();
+						}
+					})
+				: null;
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+		observer?.observe(targetCanvas);
+		schedule();
 
 		return () => {
-			window.cancelAnimationFrame(raf);
+			stop();
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
+			observer?.disconnect();
 		};
 	});
 </script>
