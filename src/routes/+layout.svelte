@@ -33,25 +33,27 @@
 			title: 'Studio',
 			variant: 'muted' as const,
 			links: [
-				{ label: 'Home', href: '/' },
+				{ label: 'Portfolio' },
 				{ label: 'Contact', href: '/contact' },
+				{ label: 'Start a Project', href: '/contact' },
 			],
 		},
 		{
 			title: 'Services',
 			variant: 'default' as const,
 			links: [
-				{ label: 'Web Design', href: '/contact' },
-				{ label: 'SEO & Performance', href: '/contact' },
-				{ label: 'Hosting & Infrastructure', href: '/contact' },
+				{ label: 'Web Design' },
+				{ label: 'SEO & Performance' },
+				{ label: 'Hosting & Infrastructure' },
 			],
 		},
 		{
-			title: 'Legal',
+			title: 'Support',
 			variant: 'muted' as const,
 			links: [
-				{ label: 'Privacy Policy', href: '/privacy' },
-				{ label: 'Terms of Service', href: '/terms' },
+				{ label: 'Email & Domain Setup' },
+				{ label: 'DevOps & Deployment' },
+				{ label: 'General Inquiry', href: '/contact' },
 			],
 		},
 	];

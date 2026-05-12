@@ -18,9 +18,9 @@
 		 */
 		label: string;
 		/**
-		 * The URL the link points to.
+		 * The URL the link points to. Omit this to render a non-interactive item.
 		 */
-		href: string;
+		href?: string;
 	}
 
 	interface MenuButton {
@@ -431,33 +431,55 @@
 					</h3>
 					<div class="mt-4 flex flex-col gap-4">
 						{#each group.links as link, i (link.href + link.label)}
-							<a
-								href={link.href}
-								data-slot="link"
-								class={cn(
-									"group/link relative block w-fit text-2xl font-normal text-foreground-muted transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-foreground",
-									classes?.link,
-								)}
-							>
-								<span class="relative z-10 block leading-tight">
-									<span
-										data-slot="link-text"
-										class={cn(
-											"menu-link-text block whitespace-nowrap",
-											classes?.linkText,
-										)}
-									>
-										{link.label}
-									</span>
-								</span>
-								<span
-									data-slot="link-underline"
+							{#if link.href}
+								<a
+									href={link.href}
+									data-slot="link"
 									class={cn(
-										"absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-foreground transition-transform duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover/link:origin-left group-hover/link:scale-x-100",
-										classes?.linkUnderline,
+										"group/link relative block w-fit text-2xl font-normal text-foreground-muted transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-foreground",
+										classes?.link,
 									)}
-								></span>
-							</a>
+								>
+									<span class="relative z-10 block leading-tight">
+										<span
+											data-slot="link-text"
+											class={cn(
+												"menu-link-text block whitespace-nowrap",
+												classes?.linkText,
+											)}
+										>
+											{link.label}
+										</span>
+									</span>
+									<span
+										data-slot="link-underline"
+										class={cn(
+											"absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-foreground transition-transform duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover/link:origin-left group-hover/link:scale-x-100",
+											classes?.linkUnderline,
+										)}
+									></span>
+								</a>
+							{:else}
+								<div
+									data-slot="link"
+									class={cn(
+										"relative block w-fit text-2xl font-normal text-foreground-muted",
+										classes?.link,
+									)}
+								>
+									<span class="relative z-10 block leading-tight">
+										<span
+											data-slot="link-text"
+											class={cn(
+												"menu-link-text block whitespace-nowrap",
+												classes?.linkText,
+											)}
+										>
+											{link.label}
+										</span>
+									</span>
+								</div>
+							{/if}
 							{#if i < group.links.length - 1}
 								<hr
 									data-slot="divider"
