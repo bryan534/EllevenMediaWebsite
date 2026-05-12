@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from "svelte";
+	
 	import { gsap } from "gsap";
 	import { SplitText } from "gsap/SplitText";
 	import { onMount } from "svelte";
@@ -172,11 +172,111 @@
 		return () => currentContainer?.removeEventListener("click", handleLinkClick);
 	});
 
+	function getBreakpoint(width: number) {
+		if (width < 768) return "mobile";
+		if (width < 1024) return "tablet";
+		return "desktop";
+	}
+
+	function buildTimeline() {
+		if (!containerRef || !menuWrapperRef || !overlayRef || !line1Ref || !line2Ref) return;
+
+		if (timeline) {
+			timeline.kill();
+			timeline = null;
+		}
+		splits.forEach((s) => s.revert());
+		splits = [];
+
+		const width = window.innerWidth;
+		const isMobile = width < 768;
+		const isTablet = width >= 768 && width < 1024;
+
+		let maxWidthOpen = "75%";
+		let maxWidthInitial = "50%";
+
+		if (isMobile) {
+			maxWidthOpen = "100%";
+			maxWidthInitial = "95%";
+		} else if (isTablet) {
+			maxWidthOpen = "85%";
+			maxWidthInitial = "70%";
+		}
+
+		gsap.set(containerRef, { clearProps: "maxWidth,top,paddingTop,borderTopLeftRadius,borderTopRightRadius" });
+		gsap.set(overlayRef, { clearProps: "autoAlpha" });
+		gsap.set(menuWrapperRef, { clearProps: "height,autoAlpha" });
+		gsap.set(line1Ref, { clearProps: "y,rotation" });
+		gsap.set(line2Ref, { clearProps: "y,rotation" });
+
+		gsap.set(overlayRef, { autoAlpha: 0 });
+		gsap.set(containerRef, { maxWidth: maxWidthInitial });
+		gsap.set(menuWrapperRef, { height: 0, autoAlpha: 0 });
+		gsap.set(line1Ref, { y: 4, rotation: 0 });
+		gsap.set(line2Ref, { y: -4, rotation: 0 });
+
+		const linkElements = gsap.utils.toArray(
+			`[data-slot="link-text"]`,
+			menuWrapperRef,
+		) as HTMLElement[];
+
+		splits = linkElements.map((el) =>
+			SplitText.create(el, { type: "lines", mask: "lines" }),
+		);
+		const allLines = splits.flatMap((s) => s.lines);
+
+		timeline = gsap.timeline({
+			paused: true,
+			defaults: { ease: "motion-core-ease", duration: 0.5 },
+		});
+
+		timeline
+			.to(
+				containerRef,
+				{
+					maxWidth: maxWidthOpen,
+					...(isMobile
+						? {
+								top: 0,
+								paddingTop: "0.5rem",
+								borderTopLeftRadius: 0,
+								borderTopRightRadius: 0,
+							}
+						: {}),
+				},
+				0,
+			)
+			.to(overlayRef, { autoAlpha: 1 }, 0)
+			.to(menuWrapperRef, { height: "auto", autoAlpha: 1 }, 0.2)
+			.to([line1Ref, line2Ref], { y: 0, duration: 0.4 }, 0.2)
+			.to(line1Ref, { rotation: 45, duration: 0.4 }, 0.2)
+			.to(line2Ref, { rotation: -45, duration: 0.4 }, 0.2);
+
+		if (allLines.length) {
+			timeline.from(
+				allLines,
+				{
+					yPercent: 100,
+					autoAlpha: 0,
+					stagger: 0.02,
+				},
+				0.3,
+			);
+		}
+
+		if (isOpen) {
+			timeline.progress(1);
+		}
+	}
+
+	let currentBreakpoint: string | null = null;
+	let splits: SplitText[] = [];
+
 	$effect(() => {
 		if (!menuGroups.length) return;
 
 		let cancelled = false;
-		let splits: SplitText[] = [];
+		let ready = false;
 
 		const init = async () => {
 			await document.fonts.ready;
@@ -184,83 +284,27 @@
 			registerPluginOnce(SplitText);
 			if (cancelled) return;
 
-			const width = window.innerWidth;
-			const isMobile = width < 768;
-			const isTablet = width >= 768 && width < 1024;
-
-			let maxWidthOpen = "75%";
-			let maxWidthInitial = "50%";
-
-			if (isMobile) {
-				maxWidthOpen = "100%";
-				maxWidthInitial = "95%";
-			} else if (isTablet) {
-				maxWidthOpen = "85%";
-				maxWidthInitial = "70%";
-			}
-
-			gsap.set(overlayRef, { autoAlpha: 0 });
-			gsap.set(containerRef, { maxWidth: maxWidthInitial });
-			gsap.set(menuWrapperRef, { height: 0, autoAlpha: 0 });
-
-			const linkElements = gsap.utils.toArray(
-				`[data-slot="link-text"]`,
-				menuWrapperRef,
-			) as HTMLElement[];
-
-			splits = linkElements.map((el) =>
-				SplitText.create(el, { type: "lines", mask: "lines" }),
-			);
-			const allLines = splits.flatMap((s) => s.lines);
-
-			timeline = gsap.timeline({
-				paused: true,
-				defaults: { ease: "motion-core-ease", duration: 0.5 },
-			});
-
-			timeline
-				.to(
-					containerRef,
-					{
-						maxWidth: maxWidthOpen,
-						...(isMobile
-							? {
-									top: 0,
-									paddingTop: "0.5rem",
-									borderTopLeftRadius: 0,
-									borderTopRightRadius: 0,
-								}
-							: {}),
-					},
-					0,
-				)
-				.to(overlayRef, { autoAlpha: 1 }, 0)
-				.to(menuWrapperRef, { height: "auto", autoAlpha: 1 }, 0.2)
-				.to([line1Ref, line2Ref], { y: 0, duration: 0.4 }, 0.2)
-				.to(line1Ref, { rotation: 45, duration: 0.4 }, 0.2)
-				.to(line2Ref, { rotation: -45, duration: 0.4 }, 0.2);
-
-			if (allLines.length) {
-				timeline.from(
-					allLines,
-					{
-						yPercent: 100,
-						autoAlpha: 0,
-						stagger: 0.02,
-					},
-					0.3,
-				);
-			}
-
-			if (untrack(() => isOpen)) {
-				timeline.progress(1);
-			}
+			currentBreakpoint = getBreakpoint(window.innerWidth);
+			buildTimeline();
+			ready = true;
 		};
 
 		init();
 
+		const onResize = () => {
+			if (!ready) return;
+			const newBreakpoint = getBreakpoint(window.innerWidth);
+			if (newBreakpoint !== currentBreakpoint) {
+				currentBreakpoint = newBreakpoint;
+				buildTimeline();
+			}
+		};
+
+		window.addEventListener("resize", onResize);
+
 		return () => {
 			cancelled = true;
+			window.removeEventListener("resize", onResize);
 			if (timeline) {
 				timeline.kill();
 				timeline = null;
