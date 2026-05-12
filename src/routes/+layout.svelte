@@ -35,8 +35,7 @@
 			links: [
 				{ label: 'Portfolio', href: '/portfolio' },
 				{ label: 'Contact', href: '/contact' },
-				{ label: 'Start a Project', href: '/contact' },
-			],
+		],
 		},
 		{
 			title: 'Services',
@@ -53,8 +52,7 @@
 			links: [
 				{ label: 'Email & Domain Setup' },
 				{ label: 'DevOps & Deployment' },
-				{ label: 'General Inquiry', href: '/contact' },
-			],
+		],
 		},
 	];
 
