@@ -2,9 +2,7 @@
 	import './layout.css';
 	import '../app.css';
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { afterNavigate } from '$app/navigation';
-	import { SvgPreloader } from '$lib/motion-core';
+	import { FloatingMenu, SvgPreloader } from '$lib/motion-core';
 
 	let { children } = $props();
 
@@ -30,52 +28,51 @@
 		};
 	}
 
-	/* ── Nav state ── */
-	const navItems = [
-		{ label: 'Home', href: '/' },
-		{ label: 'Contact', href: '/contact' },
+	const menuGroups = [
+		{
+			title: 'Studio',
+			variant: 'muted' as const,
+			links: [
+				{ label: 'Home', href: '/' },
+				{ label: 'Contact', href: '/contact' },
+			],
+		},
+		{
+			title: 'Services',
+			variant: 'default' as const,
+			links: [
+				{ label: 'Web Design', href: '/contact' },
+				{ label: 'SEO & Performance', href: '/contact' },
+				{ label: 'Hosting & Infrastructure', href: '/contact' },
+			],
+		},
+		{
+			title: 'Legal',
+			variant: 'muted' as const,
+			links: [
+				{ label: 'Privacy Policy', href: '/privacy' },
+				{ label: 'Terms of Service', href: '/terms' },
+			],
+		},
 	];
 
-	let selected = $state(0);
-
-	$effect(() => {
-		const path = $page.url.pathname;
-		if (path === '/contact') selected = 1;
-		else selected = 0;
-	});
-
-	let pill: HTMLDivElement;
-	let itemsContainer: HTMLDivElement;
-	let itemEls = $state<HTMLAnchorElement[]>([]);
-
-	function setPill(instant = false) {
-		if (!pill || !itemsContainer || !itemEls[selected]) return;
-		const el = itemEls[selected];
-		const dims = el.getBoundingClientRect();
-		const parentLeft = itemsContainer.getBoundingClientRect().left;
-		if (instant) pill.style.transition = 'none';
-		pill.style.width = dims.width + 'px';
-		pill.style.height = dims.height + 'px';
-		pill.style.left = (dims.left - parentLeft) + 'px';
-		if (instant) {
-			// restore transition after the paint so clicks animate again
-			requestAnimationFrame(() => { pill.style.transition = ''; });
-		}
-	}
-
-	$effect(() => {
-		// re-run when selected changes (nav clicks only — navigations use afterNavigate)
-		selected;
-		setPill();
-	});
-
-	afterNavigate(() => {
-		setPill(true);
-	});
-
-	function handleResize() {
-		setPill();
-	}
+	const floatingMenuClasses = {
+		root: 'border-white/10 bg-black/85 text-white shadow-2xl shadow-black/40 backdrop-blur-xl md:max-w-[72vw] lg:max-w-[42rem]',
+		overlay: 'bg-black/75',
+		toggleButton: 'hover:bg-white/10',
+		toggleLabel: 'text-white/70 group-hover:text-white',
+		toggleLine: 'bg-white group-hover:bg-white/70',
+		logo: 'justify-center',
+		primaryButton: 'bg-white text-black hover:bg-neutral-200',
+		secondaryButton: 'text-white/70 hover:bg-white/10 hover:text-white',
+		menuWrapper: 'border-white/10',
+		group: 'rounded-sm',
+		groupMuted: 'bg-white/[0.06]',
+		groupTitle: 'text-white/45',
+		link: 'text-white/55 hover:text-white',
+		linkUnderline: 'bg-white',
+		divider: 'border-white/10',
+	};
 
 	onMount(() => {
 		const seen = sessionStorage.getItem('elleven_preloader_seen');
@@ -86,10 +83,6 @@
 			pageVisible = true;
 		}
 		document.documentElement.style.visibility = '';
-
-		setTimeout(setPill, 0);
-		window.addEventListener('resize', handleResize);
-		return () => window.removeEventListener('resize', handleResize);
 	});
 </script>
 
@@ -111,25 +104,18 @@
 
 <!-- ── Site Content ── -->
 <div class="page-content" class:page-content--visible={pageVisible}>
-	<nav class="pill-nav" id="menu">
-		<div class="pill-nav-content">
-			<div class="pill" bind:this={pill}></div>
-			<div class="pill-items" bind:this={itemsContainer}>
-
-				{#each navItems as item, i}
-					<a
-						href={item.href}
-						class="pill-item"
-						class:active={selected === i}
-						aria-current={selected === i ? 'page' : undefined}
-						bind:this={itemEls[i]}
-					>
-						{item.label}
-					</a>
-				{/each}
-			</div>
-		</div>
-	</nav>
+	<FloatingMenu
+		{menuGroups}
+		classes={floatingMenuClasses}
+		primaryButton={{ label: 'Contact', href: '/contact' }}
+		secondaryButton={{ label: 'Home', href: '/' }}
+	>
+		{#snippet logo()}
+			<a href="/" class="floating-menu-logo" aria-label="Elleven Media Home">
+				<img src="/ellevenlogosmall.svg" alt="" class="floating-menu-logo-img" />
+			</a>
+		{/snippet}
+	</FloatingMenu>
 
 	{@render children()}
 
@@ -158,60 +144,17 @@
 		opacity: 1;
 	}
 
-	/* ── Pill Nav ── */
-	.pill-nav {
-		position: fixed;
-		top: 1.25rem;
-		left: 50%;
-		transform: translateX(-50%);
-		z-index: 100;
+	.floating-menu-logo {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 	}
 
-
-
-	.pill-nav-content {
-		position: relative;
-	}
-
-	.pill {
-		position: absolute;
-		top: 50%;
-		transform: translateY(-50%);
-		left: 0;
-		background-color: #000;
-		border-radius: 2rem;
-		transition: left 0.5s ease, width 0.5s ease;
-		pointer-events: none;
-	}
-
-	.pill-items {
-		display: flex;
-		background-color: #fff;
-		border-radius: 2rem;
-		box-shadow: 0px 0px 0px 4px #fff;
-	}
-
-	.pill-item {
-		padding: 0.75rem 1.25rem;
-		border-radius: 2rem;
-		cursor: pointer;
-		z-index: 1;
-		transition: color 1s ease;
-		font-family: var(--font-sans);
-		font-size: 0.85rem;
-		font-weight: 500;
-		letter-spacing: 0.03em;
-		color: #000;
-		user-select: none;
-		white-space: nowrap;
-	}
-
-	.pill-item.active {
-		color: #fff;
-	}
-
-	.pill-item:not(.active):hover {
-		color: rgb(127, 127, 127);
+	.floating-menu-logo-img {
+		width: auto;
+		height: 2.25rem;
+		max-width: 5.75rem;
+		object-fit: contain;
 	}
 
 	/* ── Footer ── */
@@ -287,11 +230,6 @@
 	}
 
 	@media (max-width: 768px) {
-		.pill-item {
-			padding: 0.8rem 0.9rem;
-			font-size: 0.75rem;
-		}
-
 		.footer {
 			padding: var(--space-3xl) 0 var(--space-2xl);
 		}
