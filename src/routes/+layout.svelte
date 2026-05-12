@@ -114,7 +114,7 @@
 	>
 		{#snippet logo()}
 			<a href="/" class="floating-menu-logo" aria-label="Elleven Media Home">
-				<img src="/ellevenlogosmall.svg" alt="" class="floating-menu-logo-img" />
+				<img src="/nav-logo.svg" alt="" class="floating-menu-logo-img" />
 			</a>
 		{/snippet}
 	</FloatingMenu>
