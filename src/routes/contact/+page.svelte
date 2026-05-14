@@ -21,16 +21,43 @@
 		'DevOps & Deployment',
 		'General Inquiry',
 	];
-	const description = 'Contact Elleven Media for web design, SEO, performance, hosting, email, domains, DevOps, and deployment support for your next digital project.';
+	const description = 'Contact Elleven Media for web design, SEO, hosting, DevOps, and domain support. Tell us about your project and we\'ll get back to you quickly.';
+	const contactSchema = [
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			"itemListElement": [
+				{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ellevenmediagroup.com/" },
+				{ "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://ellevenmediagroup.com/contact" }
+			]
+		},
+		{
+			"@context": "https://schema.org",
+			"@type": "ContactPage",
+			"@id": "https://ellevenmediagroup.com/contact#webpage",
+			"url": "https://ellevenmediagroup.com/contact",
+			"name": "Contact Elleven Media",
+			"isPartOf": { "@id": "https://ellevenmediagroup.com/#website" }
+		}
+	];
+	const contactSchemaScript =
+		'<script type="application/ld+json">' +
+		JSON.stringify(contactSchema).replace(/</g, '\\u003c') +
+		'</scr' +
+		'ipt>';
 </script>
 
 <Seo title="Contact Elleven Media | Web Design, SEO & Hosting" {description} path="/contact" />
+
+<svelte:head>
+	{@html contactSchemaScript}
+</svelte:head>
 
 <section class="contact-section">
 	<div class="container contact-container">
 		<div class="contact-header">
 			<p class="section-tag">Get in Touch</p>
-			<h1 class="contact-title">Let's start a <em>conversation</em>.</h1>
+			<h1 class="contact-title">Get in <em>Touch</em>.</h1>
 			<p class="contact-sub">
 				Digital experiences, built to last.
 			</p>

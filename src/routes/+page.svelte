@@ -2,10 +2,14 @@
 	import Seo from '$lib/Seo.svelte';
 	import { PlasmaGrid, TextLoop } from "$lib/motion-core";
 
-	const description = 'Elleven Media builds premium websites, brand experiences, SEO, performance, hosting, and deployment support for individuals and growing brands.';
+	const description = 'Elleven Media builds premium websites, brand experiences, SEO, performance, hosting, and deployment for growing businesses in California. Get started today.';
 </script>
 
 <Seo title="Elleven Media | Premium Web Design & Digital Media Studio" {description} path="/" />
+
+<svelte:head>
+	<link rel="preload" as="image" href="/logo-hero.svg" fetchpriority="high" />
+</svelte:head>
 
 <!-- ── Hero ── -->
 <section class="hero" id="hero">
@@ -13,10 +17,10 @@
 		<PlasmaGrid color="#000000" highlightColor="#ffffff" />
 	</div>
 	<div class="container hero-content">
-		<img src="/logo-hero.svg" alt="EllevenMedia Full Logo" class="hero-main-logo" />
+		<img src="/logo-hero.svg" alt="Elleven Media" class="hero-main-logo" />
 		<h1 class="hero-minimal-title">
 			<TextLoop
-				texts={["Digital Media Studio", "Premium Web Design", "Brand Experiences", "Creative Development"]}
+				texts={["Premium Web Design Studio", "SEO & Performance", "Hosting & Infrastructure", "DevOps & Deployment"]}
 				interval={2500}
 			/>
 		</h1>

@@ -1,0 +1,22 @@
+# Elleven Media
+
+> Elleven Media is a premium digital media studio offering web design, SEO & performance optimization, managed hosting & infrastructure, email & domain setup, and DevOps & deployment support. We serve individuals and growing businesses, with a focus on custom SvelteKit builds, Cloudflare-native infrastructure, and Shopify Hydrogen storefronts.
+
+## Key Pages
+
+- Homepage: https://ellevenmediagroup.com/
+- Portfolio: https://ellevenmediagroup.com/portfolio
+- Contact: https://ellevenmediagroup.com/contact
+
+## Services
+
+- Web Design & Development: Custom websites built on SvelteKit and modern frameworks
+- SEO & Performance: Core Web Vitals optimization, technical SEO, on-page strategy
+- Hosting & Infrastructure: Cloudflare Workers, edge deployment, CDN configuration
+- Email & Domain Setup: Professional email, DNS configuration, deliverability
+- DevOps & Deployment: CI/CD pipelines, container orchestration, deployment automation
+
+## Contact
+
+Email: hello@ellevenmediagroup.com
+Location: California, United States

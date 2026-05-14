@@ -112,7 +112,7 @@
 	>
 		{#snippet logo()}
 			<a href="/" class="floating-menu-logo" aria-label="Elleven Media Home">
-				<img src="/nav-logo.svg" alt="" class="floating-menu-logo-img" />
+				<img src="/nav-logo.svg" alt="Elleven Media" class="floating-menu-logo-img" />
 			</a>
 		{/snippet}
 	</FloatingMenu>
@@ -124,11 +124,17 @@
 			<a href="/" class="footer-brand" aria-label="Elleven Media Home">
 				<img src="/logo-hero.svg" alt="Elleven Media" class="footer-logo-img" />
 			</a>
-			<div class="footer-links">
+			<div class="footer-link-groups">
+				<nav class="footer-links footer-links--primary" aria-label="Footer navigation">
+					<a href="/portfolio">Portfolio</a>
+					<a href="/contact">Contact</a>
+				</nav>
+			</div>
+			<p class="footer-copy">© {new Date().getFullYear()} Elleven Media. All rights reserved.</p>
+			<nav class="footer-links footer-links--legal" aria-label="Legal navigation">
 				<a href="/privacy">Privacy Policy</a>
 				<a href="/terms">Terms of Service</a>
-			</div>
-			<p class="footer-copy">© {new Date().getFullYear()} elleven media. All rights reserved.</p>
+			</nav>
 		</div>
 	</footer>
 </div>
@@ -187,12 +193,34 @@
 		filter: brightness(0) invert(1);
 	}
 
+	.footer-link-groups {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--space-xs);
+	}
+
 	.footer-links {
 		display: flex;
 		gap: var(--space-2xl);
 		font-size: 0.85rem;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
+	}
+
+	.footer-links--legal {
+		gap: var(--space-md);
+		font-size: 0.62rem;
+		letter-spacing: 0.06em;
+		opacity: 0.48;
+	}
+
+	.footer-links--legal a {
+		color: var(--color-gray-600);
+	}
+
+	.footer-links--legal a:hover {
+		color: var(--color-gray-400);
 	}
 
 	.footer-links a {
@@ -236,11 +264,15 @@
 		.footer-inner {
 			gap: var(--space-xl);
 		}
-		.footer-links {
-			flex-direction: column;
-			gap: var(--space-md);
-			align-items: center;
-		}
+			.footer-links {
+				flex-direction: column;
+				gap: var(--space-md);
+				align-items: center;
+			}
+
+			.footer-links--legal {
+				gap: var(--space-xs);
+			}
 
 		.footer-links a {
 			min-height: 44px;

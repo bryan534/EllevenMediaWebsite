@@ -14,17 +14,31 @@
 					{
 						"@type": "Organization",
 						"@id": "https://ellevenmediagroup.com/#organization",
-						"name": "Elleven Media Group",
-						"alternateName": "Elleven Media",
+						"name": "Elleven Media",
+						"alternateName": "Elleven Media Group",
 						"url": "https://ellevenmediagroup.com/",
-						"logo": "https://ellevenmediagroup.com/logo.png",
+						"logo": {
+							"@type": "ImageObject",
+							"url": "https://ellevenmediagroup.com/logo.png",
+							"width": 400,
+							"height": 100
+						},
 						"image": "https://ellevenmediagroup.com/og-image.png",
 						"email": "hello@ellevenmediagroup.com",
 						"address": {
 							"@type": "PostalAddress",
 							"addressRegion": "CA",
 							"addressCountry": "US"
-						}
+						},
+						"contactPoint": {
+							"@type": "ContactPoint",
+							"contactType": "customer service",
+							"email": "hello@ellevenmediagroup.com",
+							"url": "https://ellevenmediagroup.com/contact"
+						},
+						"sameAs": [
+							"https://www.instagram.com/ellevenmediagroup"
+						]
 					},
 					{
 						"@type": "WebSite",

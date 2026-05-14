@@ -29,7 +29,7 @@
 	const projects: Project[] = [
 		{
 			name: 'B&B Decorations',
-			category: 'Local Service Business',
+			category: 'Local Service Business Web Design',
 			summary:
 				'A custom-designed website for a Central Valley event decor and rental company, built to showcase weddings, quinceaneras, service categories, client reviews, and a clear quote request path.',
 			scope: ['Custom Web Design', 'Local SEO', 'Lead Generation'],
@@ -45,7 +45,7 @@
 		},
 		{
 			name: 'Iron Breed Classic',
-			category: 'Event Website',
+			category: 'Event Website Design',
 			summary:
 				'A custom-designed event website for a 2026 NPC national qualifier, built around athlete-first show details, registration paths, vendors, sponsors, venue information, and structured event SEO.',
 			scope: ['Custom Web Design', 'Event Experience', 'Structured SEO'],
@@ -62,7 +62,7 @@
 		},
 		{
 			name: 'Johnathan Bernal',
-			category: 'Luxury Commerce',
+			category: 'Luxury Commerce Web Design',
 			summary:
 				'A custom-designed Shopify Hydrogen storefront for the BoxGod brand, blending cinematic storytelling, lookbook imagery, product browsing, cart and account flows, and bespoke commission requests.',
 			scope: ['Custom Web Design', 'Shopify Hydrogen', 'Commerce Flow'],
@@ -78,7 +78,7 @@
 		},
 		{
 			name: 'BORNXCREATE',
-			category: 'Brand Commerce',
+			category: 'Brand Commerce Web Design',
 			summary:
 				'A product-focused storefront for a handcrafted custom footwear brand, built around made-to-order drops, cleats, apparel, creator-led storytelling, and a clear custom-order path.',
 			scope: ['Storefront Design', 'Product Catalog', 'Custom Order Flow'],
@@ -91,10 +91,27 @@
 	];
 
 	const description =
-		'Explore Elleven Media portfolio projects for client websites, brand experiences, ecommerce, service businesses, and personal brands.';
+		'Explore Elleven Media portfolio projects: local service businesses, event sites, Shopify Hydrogen storefronts, and custom brand commerce builds.';
+	const breadcrumbSchema = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ellevenmediagroup.com/" },
+			{ "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://ellevenmediagroup.com/portfolio" }
+		]
+	};
+	const breadcrumbSchemaScript =
+		'<script type="application/ld+json">' +
+		JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') +
+		'</scr' +
+		'ipt>';
 </script>
 
-<Seo title="Portfolio | Elleven Media Client Websites" {description} path="/portfolio" />
+<Seo title="Web Design Portfolio | Elleven Media Client Websites" {description} path="/portfolio" />
+
+<svelte:head>
+	{@html breadcrumbSchemaScript}
+</svelte:head>
 
 <section class="portfolio-hero">
 	<div class="portfolio-hero-bg">
@@ -102,7 +119,7 @@
 	</div>
 	<div class="container portfolio-hero-inner">
 		<p class="section-tag">Portfolio</p>
-		<h1 class="portfolio-title">Selected client <em>websites</em>.</h1>
+		<h1 class="portfolio-title">Web Design <em>Portfolio</em>.</h1>
 		<p class="portfolio-sub">
 			A concise look at the live brands and digital experiences Elleven Media has helped shape, launch, and support.
 		</p>
@@ -114,7 +131,7 @@
 		{#each projects as project, i}
 			<article class="project-row" style="--index: {i};">
 				<div class="row-content">
-					<p class="project-category">{project.category}</p>
+					<h3 class="project-category">{project.category}</h3>
 					<h2 class="project-title">{project.name}</h2>
 					<p class="project-summary">{project.summary}</p>
 					<ul class="project-scope" aria-label={`${project.name} project scope`}>
