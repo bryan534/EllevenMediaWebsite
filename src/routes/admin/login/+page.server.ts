@@ -1,4 +1,4 @@
-import { error, fail, redirect } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { constantTimeEqual, createSessionToken, SESSION_COOKIE, SESSION_COOKIE_OPTIONS, verifySession } from '$lib/session';
@@ -40,16 +40,16 @@ export const actions = {
 		const turnstileToken = data.get('cf-turnstile-response')?.toString();
 
 		if (!env.ADMIN_PASSWORD) {
-			error(500, 'ADMIN_PASSWORD is not configured.');
+			return fail(500, { error: 'Server misconfiguration: ADMIN_PASSWORD is not set.' });
 		}
 
 		if (!env.ADMIN_SESSION_SECRET) {
-			error(500, 'ADMIN_SESSION_SECRET is not configured.');
+			return fail(500, { error: 'Server misconfiguration: ADMIN_SESSION_SECRET is not set.' });
 		}
 
 		if (!dev) {
 			if (!env.TURNSTILE_SECRET_KEY) {
-				error(500, 'TURNSTILE_SECRET_KEY is not configured.');
+				return fail(500, { error: 'Server misconfiguration: TURNSTILE_SECRET_KEY is not set.' });
 			}
 
 			if (!turnstileToken) {
