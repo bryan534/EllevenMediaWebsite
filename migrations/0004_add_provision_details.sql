@@ -1,0 +1,3 @@
+ALTER TABLE torbox_users ADD COLUMN name TEXT DEFAULT NULL;
+ALTER TABLE torbox_users ADD COLUMN contact_info TEXT DEFAULT NULL;
+ALTER TABLE torbox_users ADD COLUMN amount_paid REAL DEFAULT NULL;

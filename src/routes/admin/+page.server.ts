@@ -19,6 +19,9 @@ type DbUser = {
 	paid_until: string | null;
 	payment_status: string;
 	note: string;
+	name: string | null;
+	contact_info: string | null;
+	amount_paid: number | null;
 	added_at: string;
 };
 
@@ -44,12 +47,21 @@ export const load: PageServerLoad = async ({ platform }) => {
 	let vendor = null;
 	let vendorError: string | null = null;
 
+	let totalRevenue = 0;
+
 	if (!db) {
 		configErrors.push(DB_UNAVAILABLE);
 	} else {
 		try {
 			const dbResult = await db.prepare('SELECT * FROM torbox_users ORDER BY added_at DESC').all<DbUser>();
 			users = dbResult.results;
+			
+			const now = new Date();
+			for (const u of users) {
+				if (u.amount_paid && u.paid_until && new Date(u.paid_until) > now) {
+					totalRevenue += Number(u.amount_paid);
+				}
+			}
 		} catch {
 			configErrors.push('Could not read torbox_users from D1. Run the local and remote migrations in docs/torbox-admin.md.');
 		}
@@ -69,7 +81,8 @@ export const load: PageServerLoad = async ({ platform }) => {
 		vendorError,
 		configErrors,
 		databaseMode,
-		usingProductionDb: databaseMode === 'Production D1'
+		usingProductionDb: databaseMode === 'Production D1',
+		totalRevenue
 	};
 };
 
@@ -85,6 +98,11 @@ export const actions = {
 		const data = await request.formData();
 		const email = data.get('email')?.toString()?.trim().toLowerCase() ?? '';
 		const note = data.get('note')?.toString()?.trim() ?? '';
+		const name = data.get('name')?.toString()?.trim() || null;
+		const contact_info = data.get('contact_info')?.toString()?.trim() || null;
+		const amountPaidStr = data.get('amount_paid')?.toString()?.trim();
+		const amount_paid = amountPaidStr ? parseFloat(amountPaidStr) : null;
+		const duration = data.get('duration')?.toString() ?? 'year';
 
 		if (!db) return fail(500, { action: 'provision' as const, error: DB_UNAVAILABLE });
 		if (!apiKey) return fail(500, { action: 'provision' as const, error: API_KEY_UNAVAILABLE });
@@ -149,14 +167,22 @@ export const actions = {
 			warning = `User was created, but the API token could not be fetched: ${acctRes.detail}`;
 		}
 
-		// Calculate paid_until (1 year from now)
-		const oneYearFromNow = new Date();
-		oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-		const paidUntil = oneYearFromNow.toISOString();
+		// Calculate paid_until based on duration
+		const paidUntilDate = new Date();
+		if (duration === 'month') {
+			paidUntilDate.setMonth(paidUntilDate.getMonth() + 1);
+		} else if (duration === '3_months') {
+			paidUntilDate.setMonth(paidUntilDate.getMonth() + 3);
+		} else if (duration === '6_months') {
+			paidUntilDate.setMonth(paidUntilDate.getMonth() + 6);
+		} else {
+			paidUntilDate.setFullYear(paidUntilDate.getFullYear() + 1);
+		}
+		const paidUntil = paidUntilDate.toISOString();
 
 		await db
-			.prepare('INSERT INTO torbox_users (email, auth_id, api_token, paid_until, payment_status, note) VALUES (?, ?, ?, ?, ?, ?)')
-			.bind(registeredEmail, auth_id, apiToken, paidUntil, 'active', note)
+			.prepare('INSERT INTO torbox_users (email, auth_id, api_token, paid_until, payment_status, note, name, contact_info, amount_paid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
+			.bind(registeredEmail, auth_id, apiToken, paidUntil, 'active', note, name, contact_info, amount_paid)
 			.run();
 
 		return {

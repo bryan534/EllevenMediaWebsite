@@ -12,6 +12,10 @@
 
 	let provisionEmail = $state('');
 	let provisionNote = $state('');
+	let provisionName = $state('');
+	let provisionContact = $state('');
+	let provisionAmount = $state('');
+	let provisionDuration = $state('year');
 	let revealedTokens = $state(new Set<string>());
 	let lastPassword = $state<string | null>(null);
 	let lastEmail = $state<string | null>(null);
@@ -19,6 +23,7 @@
 	let lastWarning = $state<string | null>(null);
 	let copyStatus = $state<string | null>(null);
 	let provisionPending = $state(false);
+	let provisionModalOpen = $state(false);
 	let removePending = $state(false);
 	let renewPending = $state(false);
 	let logoutPending = $state(false);
@@ -40,6 +45,11 @@
 			lastWarning = (form as { warning?: string }).warning ?? null;
 			provisionEmail = '';
 			provisionNote = '';
+			provisionName = '';
+			provisionContact = '';
+			provisionAmount = '';
+			provisionDuration = 'year';
+			provisionModalOpen = false;
 		}
 	});
 
@@ -308,9 +318,9 @@
 					</span>
 				</div>
 				<div class="billing-metric">
-					<span class="billing-label">Discount tier</span>
-					<span class="billing-value">{Math.round(billingSummary.discountRate * 100)}%</span>
-					<span class="billing-detail">Estimated from current active users</span>
+					<span class="billing-label">Profit</span>
+					<span class="billing-value">{moneyFormatter.format(data.totalRevenue - billingSummary.estimate)}</span>
+					<span class="billing-detail">Monthly Revenue: {moneyFormatter.format(data.totalRevenue)}</span>
 				</div>
 			</section>
 		{/if}
@@ -366,59 +376,14 @@
 			</div>
 		{/if}
 
-		<!-- Provision form -->
-		<section class="section">
-			<h2 class="section-title">Add User</h2>
-			<form
-				method="POST"
-				action="?/provision"
-				use:enhance={provisionEnhance}
-				class="provision-form"
-				aria-busy={provisionPending}
-			>
-				<div class="form-row">
-					<div class="field">
-						<label for="email" class="label">Email</label>
-						<input
-							id="email"
-							name="email"
-							type="email"
-							required
-							placeholder="customer@example.com"
-							bind:value={provisionEmail}
-							class="input"
-							disabled={provisionPending}
-						/>
-					</div>
-					<div class="field">
-						<label for="note" class="label">
-							Note <span class="label-optional">(optional)</span>
-						</label>
-						<input
-							id="note"
-							name="note"
-							type="text"
-							placeholder="e.g. Paid June 2026"
-							bind:value={provisionNote}
-							class="input"
-							disabled={provisionPending}
-						/>
-					</div>
-					<button type="submit" class="btn btn--primary btn--provision" disabled={provisionPending}
-						>{provisionPending ? 'Provisioning...' : 'Provision'}</button
-					>
-				</div>
-				{#if form?.action === 'provision' && 'error' in form}
-					<p class="form-error">{form.error}</p>
-				{/if}
-			</form>
-		</section>
-
 		<!-- Users table -->
 		<section class="section">
-			<h2 class="section-title">
-				Users <span class="section-count">{data.users.length}</span>
-			</h2>
+			<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+				<h2 class="section-title" style="margin-bottom: 0;">
+					Users <span class="section-count">{data.users.length}</span>
+				</h2>
+				<button class="btn btn--primary btn--sm" onclick={() => provisionModalOpen = true}>Add User</button>
+			</div>
 
 			{#if form?.action === 'remove' && 'error' in form}
 				<p class="form-error" style="margin-bottom: 1rem;">{form.error}</p>
@@ -603,6 +568,73 @@
 			{/if}
 		</section>
 	</div>
+
+	{#if provisionModalOpen}
+		<div
+			class="modal-backdrop"
+			role="presentation"
+			onclick={(e) => { if (e.currentTarget === e.target && !provisionPending) provisionModalOpen = false; }}
+		>
+			<div class="modal" role="dialog" aria-modal="true" aria-labelledby="provision-title">
+				<div class="modal-details-header" style="margin-bottom: 1.5rem;">
+					<div>
+						<p id="provision-title" class="modal-title">Provision New User</p>
+					</div>
+					<button class="details-close-btn" onclick={() => provisionModalOpen = false} aria-label="Close" disabled={provisionPending}>
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+					</button>
+				</div>
+				<form
+					method="POST"
+					action="?/provision"
+					use:enhance={provisionEnhance}
+					class="provision-form"
+					aria-busy={provisionPending}
+				>
+					<div class="form-grid">
+						<div class="field">
+							<label for="email" class="label">Email</label>
+							<input id="email" name="email" type="email" required placeholder="customer@example.com" bind:value={provisionEmail} class="input" disabled={provisionPending} />
+						</div>
+						<div class="field">
+							<label for="name" class="label">Name <span class="label-optional">(optional)</span></label>
+							<input id="name" name="name" type="text" placeholder="John Doe" bind:value={provisionName} class="input" disabled={provisionPending} />
+						</div>
+						<div class="field">
+							<label for="contact_info" class="label">Contact Info <span class="label-optional">(optional)</span></label>
+							<input id="contact_info" name="contact_info" type="text" placeholder="Phone, TG, etc." bind:value={provisionContact} class="input" disabled={provisionPending} />
+						</div>
+						<div class="field">
+							<label for="amount_paid" class="label">Amount Paid <span class="label-optional">(optional)</span></label>
+							<input id="amount_paid" name="amount_paid" type="number" step="0.01" placeholder="0.00" bind:value={provisionAmount} class="input" disabled={provisionPending} />
+						</div>
+						<div class="field">
+							<label for="duration" class="label">Initial Duration</label>
+							<select id="duration" name="duration" bind:value={provisionDuration} class="input select" disabled={provisionPending}>
+								<option value="month">1 Month</option>
+								<option value="3_months">3 Months</option>
+								<option value="6_months">6 Months</option>
+								<option value="year">1 Year</option>
+							</select>
+						</div>
+						<div class="field field--full">
+							<label for="note" class="label">Note <span class="label-optional">(optional)</span></label>
+							<input id="note" name="note" type="text" placeholder="e.g. Paid June 2026" bind:value={provisionNote} class="input" disabled={provisionPending} />
+						</div>
+					</div>
+					
+					{#if form?.action === 'provision' && 'error' in form}
+						<p class="form-error" style="margin-bottom: 1rem;">{form.error}</p>
+					{/if}
+
+					<div class="modal-actions" style="margin-top: 1.5rem;">
+						<button type="button" class="btn btn--secondary" onclick={() => provisionModalOpen = false} disabled={provisionPending}>Cancel</button>
+						<button type="submit" class="btn btn--primary btn--provision" disabled={provisionPending}>{provisionPending ? 'Provisioning...' : 'Provision User'}</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	{/if}
 
 	{#if renewCandidate}
 		<div
@@ -1077,6 +1109,23 @@
 		align-items: end;
 	}
 
+	.form-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+		gap: 0.75rem;
+		align-items: start;
+		margin-bottom: 1rem;
+	}
+
+	.field--full {
+		grid-column: 1 / -1;
+	}
+
+	.form-actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+
 	.field {
 		display: flex;
 		flex-direction: column;
@@ -1429,7 +1478,7 @@
 	.modal-backdrop {
 		position: fixed;
 		inset: 0;
-		z-index: 40;
+		z-index: 60;
 		display: flex;
 		align-items: center;
 		justify-content: center;
