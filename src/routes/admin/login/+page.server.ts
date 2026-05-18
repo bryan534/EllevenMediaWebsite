@@ -22,6 +22,13 @@ async function verifyTurnstile(token: string, secret: string, ip?: string): Prom
 		method: 'POST',
 		body
 	});
+
+	const contentType = res.headers.get('content-type');
+	if (!contentType?.includes('application/json')) {
+		const text = await res.text();
+		throw new Error(`Turnstile response was not JSON. Status: ${res.status}. Body: ${text.slice(0, 100)}...`);
+	}
+
 	const data: { success: boolean } = await res.json();
 	return data.success;
 }
@@ -50,9 +57,13 @@ export const actions = {
 			}
 
 			const ip = getClientAddress();
-			const valid = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY, ip);
-			if (!valid) {
-				return fail(400, { error: 'Security challenge failed. Please try again.' });
+			try {
+				const valid = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY, ip);
+				if (!valid) {
+					return fail(400, { error: 'Security challenge failed. Please try again.' });
+				}
+			} catch (e: any) {
+				return fail(500, { error: `Turnstile verification failed: ${e.message}` });
 			}
 		}
 

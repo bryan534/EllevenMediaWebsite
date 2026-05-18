@@ -4,17 +4,21 @@ const SESSION_SUBJECT = 'admin-session';
 const encoder = new TextEncoder();
 
 async function hmac(secret: string, payload: string): Promise<string> {
-	const key = await crypto.subtle.importKey(
-		'raw',
-		encoder.encode(secret),
-		{ name: 'HMAC', hash: 'SHA-256' },
-		false,
-		['sign']
-	);
-	const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
-	return Array.from(new Uint8Array(sig))
-		.map((b) => b.toString(16).padStart(2, '0'))
-		.join('');
+	try {
+		const key = await crypto.subtle.importKey(
+			'raw',
+			encoder.encode(secret),
+			{ name: 'HMAC', hash: 'SHA-256' },
+			false,
+			['sign']
+		);
+		const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload));
+		return Array.from(new Uint8Array(sig))
+			.map((b) => b.toString(16).padStart(2, '0'))
+			.join('');
+	} catch (e: any) {
+		throw new Error(`HMAC failed: ${e.message}. Secret length: ${secret.length}`);
+	}
 }
 
 export function constantTimeEqual(a: string, b: string): boolean {
