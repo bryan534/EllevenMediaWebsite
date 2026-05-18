@@ -79,7 +79,7 @@ async function torboxReq<T>(
 
 	let res: Response;
 	try {
-		res = await fetch(`${BASE}${path}`, { ...init, headers });
+		res = await fetch(`${BASE}${path}`, { ...init, headers, redirect: 'manual' });
 	} catch {
 		return {
 			success: false,
@@ -87,6 +87,17 @@ async function torboxReq<T>(
 			detail: 'Could not reach the TorBox API.',
 			data: null,
 			status: 0
+		};
+	}
+
+	if (res.status >= 300 && res.status < 400) {
+		const location = res.headers.get('location') ?? '(no location header)';
+		return {
+			success: false,
+			error: `HTTP_${res.status}`,
+			detail: `TorBox API redirected (HTTP ${res.status}) to: ${location}`,
+			data: null,
+			status: res.status
 		};
 	}
 
@@ -110,7 +121,7 @@ async function torboxReq<T>(
 		return {
 			success: false,
 			error: `HTTP_${res.status}`,
-			detail: `TorBox returned a non-JSON response (HTTP ${res.status}): ${body.slice(0, 300)}`,
+			detail: `TorBox returned a non-JSON response (HTTP ${res.status}, url: ${res.url || BASE + path}): ${body.slice(0, 200)}`,
 			data: null,
 			status: res.status
 		};
