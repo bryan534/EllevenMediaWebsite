@@ -95,7 +95,7 @@ async function torboxReq<T>(
 		return {
 			success: false,
 			error: `HTTP_${res.status}`,
-			detail: `TorBox API redirected (HTTP ${res.status}) to: ${location}`,
+			detail: `TorBox is currently down for maintenance. Check https://status.torbox.app for updates.`,
 			data: null,
 			status: res.status
 		};
