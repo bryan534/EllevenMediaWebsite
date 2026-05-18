@@ -90,15 +90,27 @@ async function torboxReq<T>(
 		};
 	}
 
-	let json: TorBoxEnvelope<T> | null = null;
+	let body: string;
 	try {
-		json = (await res.json()) as TorBoxEnvelope<T>;
+		body = await res.text();
 	} catch {
-		const fallbackText = res.statusText && res.statusText.toLowerCase() !== 'ok' ? res.statusText : null;
 		return {
 			success: false,
 			error: `HTTP_${res.status}`,
-			detail: fallbackText || 'TorBox returned a non-JSON response.',
+			detail: `TorBox returned an unreadable response (HTTP ${res.status}).`,
+			data: null,
+			status: res.status
+		};
+	}
+
+	let json: TorBoxEnvelope<T> | null = null;
+	try {
+		json = JSON.parse(body) as TorBoxEnvelope<T>;
+	} catch {
+		return {
+			success: false,
+			error: `HTTP_${res.status}`,
+			detail: `TorBox returned a non-JSON response (HTTP ${res.status}): ${body.slice(0, 300)}`,
 			data: null,
 			status: res.status
 		};
