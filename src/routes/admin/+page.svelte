@@ -23,8 +23,12 @@
 	let renewPending = $state(false);
 	let logoutPending = $state(false);
 	let removeCandidate = $state<{ auth_id: string; email: string } | null>(null);
-	let renewCandidate = $state<{ auth_id: string; email: string; duration: string } | null>(null);
+	let renewCandidate = $state<{ auth_id: string; email: string; duration: string | null } | null>(null);
 	let activeDropdown = $state<string | null>(null);
+	let detailsCandidate = $state<{ auth_id: string; email: string } | null>(null);
+	let detailsData = $state<Record<string, unknown> | null>(null);
+	let detailsLoading = $state(false);
+	let detailsError = $state<string | null>(null);
 	let now = $state(new Date());
 	let copyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -138,6 +142,26 @@
 		}, 1800);
 	}
 
+	async function openDetails(auth_id: string, email: string) {
+		detailsCandidate = { auth_id, email };
+		detailsData = null;
+		detailsError = null;
+		detailsLoading = true;
+		try {
+			const res = await fetch(`/admin/api/user-details?auth_id=${encodeURIComponent(auth_id)}`);
+			const json = await res.json();
+			if (json.success && json.data) {
+				detailsData = json.data as Record<string, unknown>;
+			} else {
+				detailsError = json.detail ?? json.error ?? 'Failed to load details.';
+			}
+		} catch {
+			detailsError = 'Network error loading details.';
+		} finally {
+			detailsLoading = false;
+		}
+	}
+
 	const provisionEnhance: SubmitFunction = () => {
 		provisionPending = true;
 		return async ({ update }) => {
@@ -205,52 +229,54 @@
 	</div>
 	<div class="admin-fade"></div>
 	<header class="admin-header">
-		<div class="admin-header-inner">
-			<div class="admin-brand">
-				<img src="/nav-logo.svg" alt="Elleven" class="admin-logo" />
-				<h1 class="admin-title">Streams</h1>
-			</div>
-			<span
-				class="env-badge"
-				class:env-badge--prod={data.usingProductionDb}
-				class:env-badge--local={!data.usingProductionDb}
-				title={data.usingProductionDb
-					? 'Admin actions write to the production D1 database.'
-					: 'Admin actions write to the local D1 database.'}
-			>
-				{data.databaseMode}
-			</span>
-			{#if data.vendor}
-				<div class="vendor-stats">
-					<span class="stat">
-						<span class="stat-label">Users</span>
-						<span class="stat-value"
-							>{data.vendor.current_users} / {data.vendor.users_allowed}</span
-						>
-					</span>
-					<span class="stat-divider">·</span>
-					<span class="stat">
-						<span class="stat-label">Status</span>
-						<span class="stat-value stat-value--{data.vendor.vendor_status}"
-							>{data.vendor.vendor_status}</span
-						>
-					</span>
-					<span class="stat-divider">·</span>
-					<span class="stat">
-						<span class="stat-label">Paid until</span>
-						<span class="stat-value">{formatDate(data.vendor.paid_until)}</span>
-					</span>
-					{#if !data.vendor.can_register_new}
-						<span class="badge badge--warn">Cannot register new users</span>
-					{/if}
+		<div class="admin-header-top">
+			<div class="admin-header-left">
+				<div class="admin-brand">
+					<img src="/nav-logo.svg" alt="Elleven" class="admin-logo" />
+					<h1 class="admin-title">Streams</h1>
 				</div>
-			{/if}
-			<form method="POST" action="?/logout" use:enhance={logoutEnhance} class="logout-form">
-				<button type="submit" class="btn-link" disabled={logoutPending}
+				<span
+					class="env-badge"
+					class:env-badge--prod={data.usingProductionDb}
+					class:env-badge--local={!data.usingProductionDb}
+					title={data.usingProductionDb
+						? 'Admin actions write to the production D1 database.'
+						: 'Admin actions write to the local D1 database.'}
+				>
+					{data.databaseMode}
+				</span>
+			</div>
+			<form method="POST" action="?/logout" use:enhance={logoutEnhance}>
+				<button type="submit" class="btn-logout" disabled={logoutPending}
 					>{logoutPending ? 'Logging out...' : 'Log out'}</button
 				>
 			</form>
 		</div>
+		{#if data.vendor}
+			<div class="admin-header-bottom">
+				<span class="stat">
+					<span class="stat-label">Users</span>
+					<span class="stat-value"
+						>{data.vendor.current_users} / {data.vendor.users_allowed}</span
+					>
+				</span>
+				<span class="stat-divider">·</span>
+				<span class="stat">
+					<span class="stat-label">Status</span>
+					<span class="stat-value stat-value--{data.vendor.vendor_status}"
+						>{data.vendor.vendor_status}</span
+					>
+				</span>
+				<span class="stat-divider">·</span>
+				<span class="stat">
+					<span class="stat-label">Paid until</span>
+					<span class="stat-value">{formatDate(data.vendor.paid_until)}</span>
+				</span>
+				{#if !data.vendor.can_register_new}
+					<span class="badge badge--warn">Cannot register new users</span>
+				{/if}
+			</div>
+		{/if}
 	</header>
 
 	<div class="admin-body">
@@ -471,17 +497,11 @@
 											</button>
 											{#if activeDropdown === user.auth_id}
 												<div class="dropdown-menu" onclick={(e) => e.stopPropagation()} role="menu" tabindex="0" onkeydown={(e) => { if (e.key === 'Escape') activeDropdown = null; }}>
-													<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: 'month' }; activeDropdown = null; }}>
-														Renew 1 Month
+													<button class="dropdown-item dropdown-item--info" onclick={() => { openDetails(user.auth_id, user.email); activeDropdown = null; }}>
+														View Details
 													</button>
-													<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: '3_months' }; activeDropdown = null; }}>
-														Renew 3 Months
-													</button>
-													<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: '6_months' }; activeDropdown = null; }}>
-														Renew 6 Months
-													</button>
-													<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: 'year' }; activeDropdown = null; }}>
-														Renew 1 Year
+													<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: null }; activeDropdown = null; }}>
+														Renew
 													</button>
 													<button
 														class="dropdown-item dropdown-item--danger"
@@ -518,17 +538,11 @@
 									</button>
 									{#if activeDropdown === user.auth_id}
 										<div class="dropdown-menu" onclick={(e) => e.stopPropagation()} role="menu" tabindex="0" onkeydown={(e) => { if (e.key === 'Escape') activeDropdown = null; }}>
-											<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: 'month' }; activeDropdown = null; }}>
-												Renew 1 Month
+											<button class="dropdown-item dropdown-item--info" onclick={() => { openDetails(user.auth_id, user.email); activeDropdown = null; }}>
+												View Details
 											</button>
-											<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: '3_months' }; activeDropdown = null; }}>
-												Renew 3 Months
-											</button>
-											<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: '6_months' }; activeDropdown = null; }}>
-												Renew 6 Months
-											</button>
-											<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: 'year' }; activeDropdown = null; }}>
-												Renew 1 Year
+											<button class="dropdown-item dropdown-item--success" onclick={() => { renewCandidate = { auth_id: user.auth_id, email: user.email, duration: null }; activeDropdown = null; }}>
+												Renew
 											</button>
 											<button
 												class="dropdown-item dropdown-item--danger"
@@ -591,27 +605,75 @@
 	</div>
 
 	{#if renewCandidate}
-		<div class="modal">
-			<div class="modal-content">
-				<h3>Confirm Renewal</h3>
-				<p>
-					Are you sure you want to add
-					<strong>{renewCandidate.duration === 'year' ? '1 Year' : renewCandidate.duration === '6_months' ? '6 Months' : renewCandidate.duration === '3_months' ? '3 Months' : '1 Month'}</strong>
-					to the expiration date for <strong>{renewCandidate.email}</strong>?
-				</p>
+		<div
+			class="modal-backdrop"
+			role="presentation"
+			onclick={(e) => { if (e.currentTarget === e.target && !renewPending) renewCandidate = null; }}
+		>
+			<div class="modal" role="dialog" aria-modal="true" aria-labelledby="renew-title">
+				<p id="renew-title" class="modal-title">Renew subscription</p>
+				<p class="modal-copy">{renewCandidate.email}</p>
+
+				<div class="renew-duration-grid">
+					{#each [{ value: 'month', label: '1 Month' }, { value: '3_months', label: '3 Months' }, { value: '6_months', label: '6 Months' }, { value: 'year', label: '1 Year' }] as opt}
+						<button
+							type="button"
+							class="renew-duration-btn"
+							class:renew-duration-btn--selected={renewCandidate.duration === opt.value}
+							onclick={() => { if (renewCandidate) renewCandidate = { ...renewCandidate, duration: opt.value }; }}
+							disabled={renewPending}
+						>{opt.label}</button>
+					{/each}
+				</div>
+
 				<form method="POST" action="?/renew" use:enhance={renewEnhance} class="modal-actions">
 					<input type="hidden" name="auth_id" value={renewCandidate.auth_id} />
-					<input type="hidden" name="duration" value={renewCandidate.duration} />
+					<input type="hidden" name="duration" value={renewCandidate.duration ?? ''} />
 					<button
 						type="button"
 						class="btn btn--secondary"
 						onclick={() => (renewCandidate = null)}
 						disabled={renewPending}>Cancel</button
 					>
-					<button type="submit" class="btn btn--success" disabled={renewPending}>
+					<button type="submit" class="btn btn--success" disabled={renewPending || !renewCandidate.duration}>
 						{renewPending ? 'Renewing...' : 'Confirm'}
 					</button>
 				</form>
+			</div>
+		</div>
+	{/if}
+
+	{#if detailsCandidate}
+		<div
+			class="modal-backdrop"
+			role="presentation"
+			onclick={(e) => { if (e.currentTarget === e.target) detailsCandidate = null; }}
+		>
+			<div class="modal modal--details" role="dialog" aria-modal="true" aria-labelledby="details-title">
+				<div class="modal-details-header">
+					<div>
+						<p id="details-title" class="modal-title">TorBox Account Details</p>
+						<p class="modal-copy">{detailsCandidate.email}</p>
+					</div>
+					<button class="details-close-btn" onclick={() => detailsCandidate = null} aria-label="Close">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+					</button>
+				</div>
+
+				{#if detailsLoading}
+					<p class="details-loading">Loading…</p>
+				{:else if detailsError}
+					<p class="details-error">{detailsError}</p>
+				{:else if detailsData}
+					<div class="details-grid">
+						{#each Object.entries(detailsData) as [key, val]}
+							<div class="details-row">
+								<span class="details-key">{key}</span>
+								<span class="details-val">{val === null ? '—' : String(val)}</span>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
 	{/if}
@@ -674,30 +736,40 @@
 	}
 
 	.admin-header {
-		position: sticky;
-		top: 2rem;
+		position: relative;
 		margin: 0 auto 2.5rem;
 		max-width: 72rem;
-		width: calc(100% - 3rem);
-		border-radius: 100px;
-		border: 1px solid rgba(255, 255, 255, 0.08);
-		background: rgba(255, 255, 255, 0.02);
-		backdrop-filter: blur(24px);
-		-webkit-backdrop-filter: blur(24px);
+		width: 100%;
+		padding: 0 1.5rem;
 		z-index: 50;
-		padding: 0.75rem 1.5rem;
-		box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 	}
 
-	.admin-header-inner {
+	.admin-header-top {
 		display: flex;
 		align-items: center;
-		gap: 1.5rem;
-		flex-wrap: wrap;
+		justify-content: space-between;
+		padding-bottom: 1.25rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
-	.logout-form {
-		margin-left: auto;
+	.admin-header-left {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+	}
+
+	.btn-logout {
+		background: none;
+		border: none;
+		color: rgba(255, 255, 255, 0.5);
+		cursor: pointer;
+		font-size: 0.85rem;
+		font-weight: 500;
+		transition: color 0.2s;
+		padding: 0;
+	}
+	.btn-logout:hover {
+		color: #fff;
 	}
 
 	.admin-brand {
@@ -744,11 +816,12 @@
 		border-color: rgba(248, 113, 113, 0.24);
 	}
 
-	.vendor-stats {
+	.admin-header-bottom {
 		display: flex;
 		align-items: center;
-		gap: 0.6rem;
+		gap: 1.5rem;
 		flex-wrap: wrap;
+		padding-top: 1.25rem;
 	}
 
 	.stat {
@@ -1226,6 +1299,8 @@
 	.dropdown-item--success:hover { background: rgba(52, 211, 153, 0.1); color: #10b981; }
 	.dropdown-item--danger { color: #fca5a5; }
 	.dropdown-item--danger:hover { background: rgba(248, 113, 113, 0.1); color: #f87171; }
+	.dropdown-item--info { color: #93c5fd; }
+	.dropdown-item--info:hover { background: rgba(147, 197, 253, 0.1); color: #60a5fa; }
 
 	.badge {
 		display: inline-block;
@@ -1395,6 +1470,150 @@
 		margin-top: 1.25rem;
 	}
 
+	.renew-duration-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
+		margin: 1.1rem 0 0;
+	}
+
+	.renew-duration-btn {
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.04);
+		color: rgba(255, 255, 255, 0.6);
+		font-size: 0.78rem;
+		font-weight: 600;
+		padding: 0.65rem 0.75rem;
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.renew-duration-btn:hover:not(:disabled) {
+		background: rgba(52, 211, 153, 0.08);
+		border-color: rgba(52, 211, 153, 0.3);
+		color: #34d399;
+	}
+
+	.renew-duration-btn--selected {
+		background: rgba(52, 211, 153, 0.12);
+		border-color: rgba(52, 211, 153, 0.45);
+		color: #34d399;
+	}
+
+	.renew-duration-btn:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.modal--details {
+		width: min(100%, 40rem);
+		max-height: 85vh;
+		display: flex;
+		flex-direction: column;
+		box-sizing: border-box;
+	}
+
+	.modal-details-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+		margin-bottom: 1.25rem;
+		flex-shrink: 0;
+	}
+
+	.details-close-btn {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+		background: rgba(255, 255, 255, 0.06);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: 6px;
+		color: rgba(255, 255, 255, 0.5);
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+
+	.details-close-btn:hover {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: rgba(255, 255, 255, 0.25);
+		color: #fff;
+	}
+
+	.details-loading {
+		color: rgba(255, 255, 255, 0.4);
+		font-size: 0.84rem;
+		text-align: center;
+		padding: 1.5rem 0;
+	}
+
+	.details-error {
+		color: #f87171;
+		font-size: 0.84rem;
+		padding: 0.5rem 0;
+	}
+
+	.details-grid {
+		overflow-y: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		min-height: 0;
+	}
+
+	.details-row {
+		display: grid;
+		grid-template-columns: 11rem 1fr;
+		gap: 0.5rem;
+		padding: 0.45rem 0.6rem;
+		border-radius: 6px;
+		align-items: baseline;
+		min-width: 0;
+	}
+
+	.details-row:nth-child(odd) {
+		background: rgba(255, 255, 255, 0.025);
+	}
+
+	.details-key {
+		font-size: 0.65rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: rgba(255, 255, 255, 0.35);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.details-val {
+		font-size: 0.8rem;
+		color: #fff;
+		word-break: break-all;
+		font-family: monospace;
+		min-width: 0;
+	}
+
+	@media (max-width: 480px) {
+		.modal--details {
+			max-height: 90vh;
+		}
+
+		.details-row {
+			grid-template-columns: 1fr;
+			gap: 0.15rem;
+			padding: 0.5rem 0.6rem;
+		}
+
+		.details-key {
+			white-space: normal;
+		}
+	}
+
 	@media (max-width: 820px) {
 		.billing-panel {
 			grid-template-columns: 1fr;
@@ -1416,23 +1635,17 @@
 		}
 
 		.admin-header {
-			border-radius: 16px;
-			padding: 1rem;
-			top: 1rem;
-			width: calc(100% - 2rem);
+			padding: 0 1rem;
 			margin-bottom: 1.5rem;
 		}
 
-		.admin-header-inner {
+		.admin-header-top {
+			padding-bottom: 1rem;
+		}
+
+		.admin-header-bottom {
+			padding-top: 1rem;
 			gap: 1rem;
-		}
-
-		.vendor-stats {
-			width: 100%;
-		}
-
-		.logout-form {
-			margin-left: 0;
 		}
 
 		.form-row {
