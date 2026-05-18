@@ -94,17 +94,20 @@ async function torboxReq<T>(
 	try {
 		json = (await res.json()) as TorBoxEnvelope<T>;
 	} catch {
+		const fallbackText = res.statusText && res.statusText.toLowerCase() !== 'ok' ? res.statusText : null;
 		return {
 			success: false,
 			error: `HTTP_${res.status}`,
-			detail: res.statusText || 'TorBox returned a non-JSON response.',
+			detail: fallbackText || 'TorBox returned a non-JSON response.',
 			data: null,
 			status: res.status
 		};
 	}
 
 	const rawDetail = formatDetail(json?.detail);
-	const detail = (rawDetail && rawDetail.toLowerCase() !== 'ok' ? rawDetail : null) || res.statusText || 'TorBox API request failed.';
+	const usefulDetail = rawDetail && rawDetail.toLowerCase() !== 'ok' ? rawDetail : null;
+	const usefulStatusText = res.statusText && res.statusText.toLowerCase() !== 'ok' ? res.statusText : null;
+	const detail = usefulDetail || usefulStatusText || 'TorBox API request failed.';
 
 	return {
 		success: res.ok && json?.success === true,
