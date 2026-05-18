@@ -1,0 +1,1 @@
+ALTER TABLE torbox_users ADD COLUMN password TEXT NOT NULL DEFAULT '';

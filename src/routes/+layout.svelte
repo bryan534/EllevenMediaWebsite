@@ -1,10 +1,12 @@
 <script lang="ts">
 	import './layout.css';
 	import '../app.css';
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { FloatingMenu, SvgPreloader } from '$lib/motion-core';
 
 	let { children } = $props();
+	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
 	/* ── Preloader state ── */
 	let showPreloader = $state(false);
@@ -75,6 +77,12 @@
 	};
 
 	onMount(() => {
+		if (isAdminRoute) {
+			pageVisible = true;
+			document.documentElement.style.visibility = '';
+			return;
+		}
+
 		const seen = sessionStorage.getItem('elleven_preloader_seen');
 		if (!seen) {
 			showPreloader = true;
@@ -96,7 +104,7 @@
 </svelte:head>
 
 <!-- ── Preloader ── -->
-{#if showPreloader}
+{#if !isAdminRoute && showPreloader}
 	<div use:portal>
 		<SvgPreloader onComplete={handlePreloaderComplete} />
 	</div>
@@ -104,39 +112,43 @@
 
 <!-- ── Site Content ── -->
 <div class="page-content" class:page-content--visible={pageVisible}>
-	<FloatingMenu
-		{menuGroups}
-		classes={floatingMenuClasses}
-		primaryButton={{ label: 'Contact', href: '/contact' }}
-		secondaryButton={{ label: 'Home', href: '/' }}
-	>
-		{#snippet logo()}
-			<a href="/" class="floating-menu-logo" aria-label="Elleven Media Home">
-				<img src="/nav-logo.svg" alt="Elleven Media" class="floating-menu-logo-img" />
-			</a>
-		{/snippet}
-	</FloatingMenu>
+	{#if !isAdminRoute}
+		<FloatingMenu
+			{menuGroups}
+			classes={floatingMenuClasses}
+			primaryButton={{ label: 'Contact', href: '/contact' }}
+			secondaryButton={{ label: 'Home', href: '/' }}
+		>
+			{#snippet logo()}
+				<a href="/" class="floating-menu-logo" aria-label="Elleven Media Home">
+					<img src="/nav-logo.svg" alt="Elleven Media" class="floating-menu-logo-img" />
+				</a>
+			{/snippet}
+		</FloatingMenu>
+	{/if}
 
 	{@render children()}
 
-	<footer class="footer">
-		<div class="container footer-inner">
-			<a href="/" class="footer-brand" aria-label="Elleven Media Home">
-				<img src="/logo-hero.svg" alt="Elleven Media" class="footer-logo-img" />
-			</a>
-			<div class="footer-link-groups">
-				<nav class="footer-links footer-links--primary" aria-label="Footer navigation">
-					<a href="/portfolio">Portfolio</a>
-					<a href="/contact">Contact</a>
+	{#if !isAdminRoute}
+		<footer class="footer">
+			<div class="container footer-inner">
+				<a href="/" class="footer-brand" aria-label="Elleven Media Home">
+					<img src="/logo-hero.svg" alt="Elleven Media" class="footer-logo-img" />
+				</a>
+				<div class="footer-link-groups">
+					<nav class="footer-links footer-links--primary" aria-label="Footer navigation">
+						<a href="/portfolio">Portfolio</a>
+						<a href="/contact">Contact</a>
+					</nav>
+				</div>
+				<p class="footer-copy">© {new Date().getFullYear()} Elleven Media. All rights reserved.</p>
+				<nav class="footer-links footer-links--legal" aria-label="Legal navigation">
+					<a href="/privacy">Privacy Policy</a>
+					<a href="/terms">Terms of Service</a>
 				</nav>
 			</div>
-			<p class="footer-copy">© {new Date().getFullYear()} Elleven Media. All rights reserved.</p>
-			<nav class="footer-links footer-links--legal" aria-label="Legal navigation">
-				<a href="/privacy">Privacy Policy</a>
-				<a href="/terms">Terms of Service</a>
-			</nav>
-		</div>
-	</footer>
+		</footer>
+	{/if}
 </div>
 
 <style>

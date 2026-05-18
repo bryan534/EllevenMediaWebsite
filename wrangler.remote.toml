@@ -7,4 +7,4 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "torbox-admin"
 database_id = "9f1b2e27-db51-4dab-9177-c2fbea417893"
-preview_database_id = "DB"
+remote = true
