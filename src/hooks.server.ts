@@ -12,7 +12,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			'Content-Security-Policy',
 			[
 				"default-src 'self'",
-				"script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com",
+				"script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com blob:",
 				"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 				"font-src 'self' https://fonts.gstatic.com",
 				"img-src 'self' data:",
