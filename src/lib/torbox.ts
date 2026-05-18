@@ -103,7 +103,8 @@ async function torboxReq<T>(
 		};
 	}
 
-	const detail = formatDetail(json?.detail) || res.statusText || 'TorBox API request failed.';
+	const rawDetail = formatDetail(json?.detail);
+	const detail = (rawDetail && rawDetail.toLowerCase() !== 'ok' ? rawDetail : null) || res.statusText || 'TorBox API request failed.';
 
 	return {
 		success: res.ok && json?.success === true,
