@@ -74,7 +74,7 @@
 			previewAlt: 'BoxGod homepage screenshot',
 			previewWidth: 3600,
 			previewHeight: 2084,
-			href: 'https://boxgod.pages.dev',
+			href: 'https://boxgodwebsite.pages.dev',
 		},
 		{
 			name: 'BORNXCREATE',

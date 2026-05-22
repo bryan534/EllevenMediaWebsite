@@ -79,8 +79,12 @@
 					<a href="https://www.bornxcreate.shop" target="_blank" rel="noopener noreferrer" aria-label="Visit BORNXCREATE">
 						<img src={bornxcreate} alt="BORNXCREATE" width="360" height="150" loading="lazy" decoding="async" />
 					</a>
-					<img src={ironbreed} alt="IronBreed" class="no-invert" width="320" height="214" loading="lazy" decoding="async" />
-					<img src={jb} alt="Johnathan Bernal" width="320" height="213" loading="lazy" decoding="async" />
+					<a href="https://www.ironbreedclassic.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Iron Breed Classic">
+						<img src={ironbreed} alt="IronBreed" class="no-invert" width="320" height="214" loading="lazy" decoding="async" />
+					</a>
+					<a href="https://boxgodwebsite.pages.dev" target="_blank" rel="noopener noreferrer" aria-label="Visit Johnathan Bernal">
+						<img src={jb} alt="Johnathan Bernal" width="320" height="213" loading="lazy" decoding="async" />
+					</a>
 					<a href="https://bbdecorations.com" target="_blank" rel="noopener noreferrer" aria-label="Visit B&B Decorations">
 						<img src={bbdecorations} alt="B&amp;B Decorations" width="360" height="164" loading="lazy" decoding="async" />
 					</a>
