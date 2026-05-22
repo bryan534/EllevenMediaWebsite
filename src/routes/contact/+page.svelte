@@ -57,7 +57,7 @@
 	<div class="container contact-container">
 		<div class="contact-header">
 			<p class="section-tag">Get in Touch</p>
-			<h1 class="contact-title">Get in <em>Touch</em>.</h1>
+			<h1 class="contact-title">Let's work <em>together</em>.</h1>
 			<p class="contact-sub">
 				Digital experiences, built to last.
 			</p>
