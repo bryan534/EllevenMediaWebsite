@@ -454,6 +454,7 @@
 											<button
 												type="button"
 												class="icon-btn-ghost"
+												aria-label={`Open actions for ${user.email}`}
 												onclick={(e) => {
 													e.stopPropagation();
 													activeDropdown = activeDropdown === user.auth_id ? null : user.auth_id;
@@ -495,6 +496,7 @@
 									<button
 										type="button"
 										class="icon-btn-ghost"
+										aria-label={`Open actions for ${user.email}`}
 										onclick={(e) => {
 											e.stopPropagation();
 											activeDropdown = activeDropdown === user.auth_id ? null : user.auth_id;
@@ -594,19 +596,19 @@
 					<div class="form-grid">
 						<div class="field">
 							<label for="email" class="label">Email</label>
-							<input id="email" name="email" type="email" required placeholder="customer@example.com" bind:value={provisionEmail} class="input" disabled={provisionPending} />
+							<input id="email" name="email" type="email" maxlength="254" required placeholder="customer@example.com" bind:value={provisionEmail} class="input" disabled={provisionPending} />
 						</div>
 						<div class="field">
 							<label for="name" class="label">Name <span class="label-optional">(optional)</span></label>
-							<input id="name" name="name" type="text" placeholder="John Doe" bind:value={provisionName} class="input" disabled={provisionPending} />
+							<input id="name" name="name" type="text" maxlength="100" placeholder="John Doe" bind:value={provisionName} class="input" disabled={provisionPending} />
 						</div>
 						<div class="field">
 							<label for="contact_info" class="label">Contact Info <span class="label-optional">(optional)</span></label>
-							<input id="contact_info" name="contact_info" type="text" placeholder="Phone, TG, etc." bind:value={provisionContact} class="input" disabled={provisionPending} />
+							<input id="contact_info" name="contact_info" type="text" maxlength="200" placeholder="Phone, TG, etc." bind:value={provisionContact} class="input" disabled={provisionPending} />
 						</div>
 						<div class="field">
 							<label for="amount_paid" class="label">Amount Paid <span class="label-optional">(optional)</span></label>
-							<input id="amount_paid" name="amount_paid" type="number" step="0.01" placeholder="0.00" bind:value={provisionAmount} class="input" disabled={provisionPending} />
+							<input id="amount_paid" name="amount_paid" type="number" min="0" max="1000000" step="0.01" placeholder="0.00" bind:value={provisionAmount} class="input" disabled={provisionPending} />
 						</div>
 						<div class="field">
 							<label for="duration" class="label">Initial Duration</label>
@@ -619,7 +621,7 @@
 						</div>
 						<div class="field field--full">
 							<label for="note" class="label">Note <span class="label-optional">(optional)</span></label>
-							<input id="note" name="note" type="text" placeholder="e.g. Paid June 2026" bind:value={provisionNote} class="input" disabled={provisionPending} />
+							<input id="note" name="note" type="text" maxlength="500" placeholder="e.g. Paid June 2026" bind:value={provisionNote} class="input" disabled={provisionPending} />
 						</div>
 					</div>
 					

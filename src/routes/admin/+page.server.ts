@@ -6,10 +6,18 @@ import { getVendorAccount, registerUser, getAccount, removeUser } from '$lib/tor
 import type { Actions, PageServerLoad } from './$types';
 
 const UNCONFIRMED_API_TOKEN = 'USER HAS NOT CONFIRMED EMAIL';
+const MAX_EMAIL_LENGTH = 254;
+const MAX_AUTH_ID_LENGTH = 128;
+const MAX_NAME_LENGTH = 100;
+const MAX_CONTACT_INFO_LENGTH = 200;
 const MAX_NOTE_LENGTH = 500;
+const MAX_AMOUNT_PAID = 1_000_000;
+const durations = new Set(['month', '3_months', '6_months', 'year'] as const);
 const DB_UNAVAILABLE =
 	'D1 database binding DB is not available. Run `npm run dev` for local D1 or `npm run dev:prod-db` for production D1.';
 const API_KEY_UNAVAILABLE = 'TORBOX_API_KEY is not configured.';
+
+type Duration = typeof durations extends Set<infer T> ? T : never;
 
 type DbUser = {
 	id: number;
@@ -34,7 +42,48 @@ function getApiKey() {
 }
 
 function isValidEmail(email: string) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+	return email.length <= MAX_EMAIL_LENGTH && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidAuthId(authId: string) {
+	return authId.length > 0 && authId.length <= MAX_AUTH_ID_LENGTH;
+}
+
+function isValidDuration(duration: string): duration is Duration {
+	return durations.has(duration as Duration);
+}
+
+function parseAmountPaid(amountPaidRaw: string | undefined) {
+	if (!amountPaidRaw) return { amountPaid: null, error: null };
+
+	const amountPaid = Number(amountPaidRaw);
+	if (!Number.isFinite(amountPaid) || amountPaid < 0 || amountPaid > MAX_AMOUNT_PAID) {
+		return {
+			amountPaid: null,
+			error: `Amount paid must be between 0 and ${MAX_AMOUNT_PAID}.`
+		};
+	}
+
+	return {
+		amountPaid: Math.round(amountPaid * 100) / 100,
+		error: null
+	};
+}
+
+function getPaidUntilIso(duration: Duration, from = new Date()) {
+	const paidUntilDate = new Date(from);
+
+	if (duration === 'month') {
+		paidUntilDate.setMonth(paidUntilDate.getMonth() + 1);
+	} else if (duration === '3_months') {
+		paidUntilDate.setMonth(paidUntilDate.getMonth() + 3);
+	} else if (duration === '6_months') {
+		paidUntilDate.setMonth(paidUntilDate.getMonth() + 6);
+	} else {
+		paidUntilDate.setFullYear(paidUntilDate.getFullYear() + 1);
+	}
+
+	return paidUntilDate.toISOString();
 }
 
 export const load: PageServerLoad = async ({ platform }) => {
@@ -101,7 +150,7 @@ export const actions = {
 		const name = data.get('name')?.toString()?.trim() || null;
 		const contact_info = data.get('contact_info')?.toString()?.trim() || null;
 		const amountPaidStr = data.get('amount_paid')?.toString()?.trim();
-		const amount_paid = amountPaidStr ? parseFloat(amountPaidStr) : null;
+		const { amountPaid, error: amountPaidError } = parseAmountPaid(amountPaidStr);
 		const duration = data.get('duration')?.toString() ?? 'year';
 
 		if (!db) return fail(500, { action: 'provision' as const, error: DB_UNAVAILABLE });
@@ -110,11 +159,29 @@ export const actions = {
 		if (!isValidEmail(email)) {
 			return fail(400, { action: 'provision' as const, error: 'Enter a valid email address.' });
 		}
+		if (name && name.length > MAX_NAME_LENGTH) {
+			return fail(400, {
+				action: 'provision' as const,
+				error: `Name must be ${MAX_NAME_LENGTH} characters or fewer.`
+			});
+		}
+		if (contact_info && contact_info.length > MAX_CONTACT_INFO_LENGTH) {
+			return fail(400, {
+				action: 'provision' as const,
+				error: `Contact info must be ${MAX_CONTACT_INFO_LENGTH} characters or fewer.`
+			});
+		}
 		if (note.length > MAX_NOTE_LENGTH) {
 			return fail(400, {
 				action: 'provision' as const,
 				error: `Note must be ${MAX_NOTE_LENGTH} characters or fewer.`
 			});
+		}
+		if (amountPaidError) {
+			return fail(400, { action: 'provision' as const, error: amountPaidError });
+		}
+		if (!isValidDuration(duration)) {
+			return fail(400, { action: 'provision' as const, error: 'Select a valid duration.' });
 		}
 
 		const existing = await db
@@ -167,22 +234,11 @@ export const actions = {
 			warning = `User was created, but the API token could not be fetched: ${acctRes.detail}`;
 		}
 
-		// Calculate paid_until based on duration
-		const paidUntilDate = new Date();
-		if (duration === 'month') {
-			paidUntilDate.setMonth(paidUntilDate.getMonth() + 1);
-		} else if (duration === '3_months') {
-			paidUntilDate.setMonth(paidUntilDate.getMonth() + 3);
-		} else if (duration === '6_months') {
-			paidUntilDate.setMonth(paidUntilDate.getMonth() + 6);
-		} else {
-			paidUntilDate.setFullYear(paidUntilDate.getFullYear() + 1);
-		}
-		const paidUntil = paidUntilDate.toISOString();
+		const paidUntil = getPaidUntilIso(duration);
 
 		await db
 			.prepare('INSERT INTO torbox_users (email, auth_id, api_token, paid_until, payment_status, note, name, contact_info, amount_paid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-			.bind(registeredEmail, auth_id, apiToken, paidUntil, 'active', note, name, contact_info, amount_paid)
+			.bind(registeredEmail, auth_id, apiToken, paidUntil, 'active', note, name, contact_info, amountPaid)
 			.run();
 
 		return {
@@ -199,11 +255,13 @@ export const actions = {
 		const db = getDb(platform);
 		const apiKey = getApiKey();
 		const data = await request.formData();
-		const authId = data.get('auth_id')?.toString() ?? '';
+		const authId = data.get('auth_id')?.toString().trim() ?? '';
 
 		if (!db) return fail(500, { action: 'remove' as const, error: DB_UNAVAILABLE });
 		if (!apiKey) return fail(500, { action: 'remove' as const, error: API_KEY_UNAVAILABLE });
-		if (!authId) return fail(400, { action: 'remove' as const, error: 'Missing user ID.' });
+		if (!isValidAuthId(authId)) {
+			return fail(400, { action: 'remove' as const, error: 'Invalid user ID.' });
+		}
 
 		const res = await removeUser(apiKey, authId);
 		if (!res.success) {
@@ -219,10 +277,15 @@ export const actions = {
 		const db = getDb(platform);
 		if (!db) return fail(500, { action: 'renew' as const, error: DB_UNAVAILABLE });
 		const data = await request.formData();
-		const authId = data.get('auth_id')?.toString() ?? '';
+		const authId = data.get('auth_id')?.toString().trim() ?? '';
 		const duration = data.get('duration')?.toString() ?? 'year';
 		
-		if (!authId) return fail(400, { action: 'renew' as const, error: 'Missing user ID.' });
+		if (!isValidAuthId(authId)) {
+			return fail(400, { action: 'renew' as const, error: 'Invalid user ID.' });
+		}
+		if (!isValidDuration(duration)) {
+			return fail(400, { action: 'renew' as const, error: 'Select a valid duration.' });
+		}
 
 		const user = await db.prepare('SELECT paid_until FROM torbox_users WHERE auth_id = ?').bind(authId).first<{ paid_until: string | null }>();
 		if (!user) return fail(404, { action: 'renew' as const, error: 'User not found in local db.' });
@@ -230,18 +293,11 @@ export const actions = {
 		const currentPaidUntil = user.paid_until ? new Date(user.paid_until) : new Date();
 		const now = new Date();
 		const baseDate = currentPaidUntil < now ? now : currentPaidUntil;
-		
-		if (duration === 'month') {
-			baseDate.setMonth(baseDate.getMonth() + 1);
-		} else if (duration === '3_months') {
-			baseDate.setMonth(baseDate.getMonth() + 3);
-		} else if (duration === '6_months') {
-			baseDate.setMonth(baseDate.getMonth() + 6);
-		} else {
-			baseDate.setFullYear(baseDate.getFullYear() + 1);
-		}
 
-		await db.prepare("UPDATE torbox_users SET paid_until = ?, payment_status = 'active' WHERE auth_id = ?").bind(baseDate.toISOString(), authId).run();
+		await db
+			.prepare("UPDATE torbox_users SET paid_until = ?, payment_status = 'active' WHERE auth_id = ?")
+			.bind(getPaidUntilIso(duration, baseDate), authId)
+			.run();
 
 		return { action: 'renew' as const, success: true };
 	}

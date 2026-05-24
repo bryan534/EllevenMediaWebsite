@@ -22,35 +22,43 @@
 		'General Inquiry',
 	];
 	const description = 'Contact Elleven Media for web design, SEO, hosting, DevOps, and domain support. Tell us about your project and we\'ll get back to you quickly.';
-	const contactSchema = [
-		{
-			"@context": "https://schema.org",
-			"@type": "BreadcrumbList",
-			"itemListElement": [
-				{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ellevenmediagroup.com/" },
-				{ "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://ellevenmediagroup.com/contact" }
-			]
-		},
-		{
-			"@context": "https://schema.org",
-			"@type": "ContactPage",
-			"@id": "https://ellevenmediagroup.com/contact#webpage",
-			"url": "https://ellevenmediagroup.com/contact",
-			"name": "Contact Elleven Media",
-			"isPartOf": { "@id": "https://ellevenmediagroup.com/#website" }
-		}
-	];
-	const contactSchemaScript =
-		'<script type="application/ld+json">' +
-		JSON.stringify(contactSchema).replace(/</g, '\\u003c') +
-		'</scr' +
-		'ipt>';
 </script>
 
 <Seo title="Contact Elleven Media | Web Design, SEO & Hosting" {description} path="/contact" />
 
 <svelte:head>
-	{@html contactSchemaScript}
+	<script type="application/ld+json">
+		[
+			{
+				"@context": "https://schema.org",
+				"@type": "BreadcrumbList",
+				"itemListElement": [
+					{
+						"@type": "ListItem",
+						"position": 1,
+						"name": "Home",
+						"item": "https://ellevenmediagroup.com/"
+					},
+					{
+						"@type": "ListItem",
+						"position": 2,
+						"name": "Contact",
+						"item": "https://ellevenmediagroup.com/contact"
+					}
+				]
+			},
+			{
+				"@context": "https://schema.org",
+				"@type": "ContactPage",
+				"@id": "https://ellevenmediagroup.com/contact#webpage",
+				"url": "https://ellevenmediagroup.com/contact",
+				"name": "Contact Elleven Media",
+				"isPartOf": {
+					"@id": "https://ellevenmediagroup.com/#website"
+				}
+			}
+		]
+	</script>
 </svelte:head>
 
 <section class="contact-section">
@@ -127,6 +135,8 @@
 				>
 					{#if form?.missing}
 						<div class="error-message">Please fill in all required fields.</div>
+					{:else if form?.validationError}
+						<div class="error-message">{form.validationError}</div>
 					{:else if form?.error}
 						<div class="error-message">Something went wrong sending your message. Please try again or email us directly at <a href="mailto:hello@ellevenmediagroup.com">hello@ellevenmediagroup.com</a>.</div>
 					{/if}
@@ -148,17 +158,17 @@
 					</div>
 
 					<div class="form-group floating">
-						<input type="text" id="name" name="name" value={form?.name ?? ''} required placeholder=" " autocomplete="name" />
+						<input type="text" id="name" name="name" value={form?.name ?? ''} maxlength="100" required placeholder=" " autocomplete="name" />
 						<label for="name">Name</label>
 					</div>
 
 					<div class="form-group floating">
-						<input type="email" id="email" name="email" value={form?.email ?? ''} required placeholder=" " autocomplete="email" />
+						<input type="email" id="email" name="email" value={form?.email ?? ''} maxlength="254" required placeholder=" " autocomplete="email" />
 						<label for="email">Email</label>
 					</div>
 
 					<div class="form-group floating">
-						<textarea id="message" name="message" rows="5" required placeholder=" ">{form?.message ?? ''}</textarea>
+						<textarea id="message" name="message" rows="5" maxlength="4000" required placeholder=" ">{form?.message ?? ''}</textarea>
 						<label for="message">Message</label>
 					</div>
 

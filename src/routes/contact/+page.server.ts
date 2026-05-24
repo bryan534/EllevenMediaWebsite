@@ -13,6 +13,17 @@ const inquiryTypes = new Set([
 ]);
 
 const contactEmailLogoUrl = 'https://cdn.ellevenmediagroup.com/ellevenlogo.png';
+const MAX_NAME_LENGTH = 100;
+const MAX_EMAIL_LENGTH = 254;
+const MAX_MESSAGE_LENGTH = 4000;
+
+function isValidEmail(email: string) {
+	return email.length <= MAX_EMAIL_LENGTH && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function cleanHeaderValue(value: string) {
+	return value.replace(/[\r\n]+/g, ' ').trim();
+}
 
 function escapeHtml(value: string) {
 	return value.replace(/[&<>"']/g, (char) => {
@@ -192,10 +203,10 @@ function buildContactEmailText({ name, email, inquiry, message, submittedAt }: C
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
-		const name = data.get('name')?.toString();
-		const email = data.get('email')?.toString();
+		const name = data.get('name')?.toString().trim();
+		const email = data.get('email')?.toString().trim().toLowerCase();
 		const inquiry = data.get('inquiry')?.toString();
-		const message = data.get('message')?.toString();
+		const message = data.get('message')?.toString().trim();
 		const honeypot = data.get('website_url')?.toString();
 
 		if (honeypot) {
@@ -206,12 +217,27 @@ export const actions = {
 			return fail(400, { name, email, inquiry, message, missing: true });
 		}
 
+		if (
+			name.length > MAX_NAME_LENGTH ||
+			!isValidEmail(email) ||
+			message.length > MAX_MESSAGE_LENGTH
+		) {
+			return fail(400, {
+				name,
+				email,
+				inquiry,
+				message,
+				validationError:
+					'Please use a valid email and keep your name and message within the allowed length.'
+			});
+		}
+
 		if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL || !env.CONTACT_TO_EMAIL) {
 			console.error('Contact form email environment variables are not configured.');
 			return fail(500, { name, email, inquiry, message, error: true });
 		}
 
-		const emailSubject = `Contact Form: ${inquiry} - ${name}`;
+		const emailSubject = cleanHeaderValue(`Contact Form: ${inquiry} - ${name}`);
 		const submittedAt = new Intl.DateTimeFormat('en-US', {
 			dateStyle: 'medium',
 			timeStyle: 'short',

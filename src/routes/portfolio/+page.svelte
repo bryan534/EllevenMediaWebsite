@@ -92,25 +92,31 @@
 
 	const description =
 		'Explore Elleven Media portfolio projects: local service businesses, event sites, Shopify Hydrogen storefronts, and custom brand commerce builds.';
-	const breadcrumbSchema = {
-		"@context": "https://schema.org",
-		"@type": "BreadcrumbList",
-		"itemListElement": [
-			{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://ellevenmediagroup.com/" },
-			{ "@type": "ListItem", "position": 2, "name": "Portfolio", "item": "https://ellevenmediagroup.com/portfolio" }
-		]
-	};
-	const breadcrumbSchemaScript =
-		'<script type="application/ld+json">' +
-		JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c') +
-		'</scr' +
-		'ipt>';
 </script>
 
 <Seo title="Web Design Portfolio | Elleven Media Client Websites" {description} path="/portfolio" />
 
 <svelte:head>
-	{@html breadcrumbSchemaScript}
+	<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			"itemListElement": [
+				{
+					"@type": "ListItem",
+					"position": 1,
+					"name": "Home",
+					"item": "https://ellevenmediagroup.com/"
+				},
+				{
+					"@type": "ListItem",
+					"position": 2,
+					"name": "Portfolio",
+					"item": "https://ellevenmediagroup.com/portfolio"
+				}
+			]
+		}
+	</script>
 </svelte:head>
 
 <section class="portfolio-hero">
