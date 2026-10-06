@@ -5,6 +5,7 @@
 ## Key Pages
 
 - Homepage: https://ellevenmediagroup.com/
+- Services: https://ellevenmediagroup.com/services
 - Portfolio: https://ellevenmediagroup.com/portfolio
 - Contact: https://ellevenmediagroup.com/contact
 

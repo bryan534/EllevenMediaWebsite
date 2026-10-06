@@ -24,6 +24,9 @@
 		previewWidth?: number;
 		previewHeight?: number;
 		href?: string;
+		/** Optional badge, e.g. for builds that aren't on a production domain yet. */
+		status?: string;
+		linkLabel?: string;
 	};
 
 	const projects: Project[] = [
@@ -75,6 +78,8 @@
 			previewWidth: 3600,
 			previewHeight: 2084,
 			href: 'https://boxgodwebsite.pages.dev',
+			status: 'In Progress',
+			linkLabel: 'View Preview',
 		},
 		{
 			name: 'BORNXCREATE',
@@ -137,7 +142,12 @@
 		{#each projects as project, i}
 			<article class="project-row" style="--index: {i};">
 				<div class="row-content">
-					<h3 class="project-category">{project.category}</h3>
+					<div class="project-meta">
+						<p class="project-category">{project.category}</p>
+						{#if project.status}
+							<span class="project-status">{project.status}</span>
+						{/if}
+					</div>
 					<h2 class="project-title">{project.name}</h2>
 					<p class="project-summary">{project.summary}</p>
 					<ul class="project-scope" aria-label={`${project.name} project scope`}>
@@ -148,7 +158,7 @@
 					{#if project.href}
 						<div class="project-link-wrapper">
 							<a class="project-link" href={project.href} target="_blank" rel="noopener noreferrer">
-								Visit Site <span class="arrow">&rarr;</span>
+								{project.linkLabel ?? 'Visit Site'} <span class="arrow">&rarr;</span>
 							</a>
 						</div>
 					{/if}
@@ -162,7 +172,7 @@
 							href={project.href}
 							target="_blank"
 							rel="noopener noreferrer"
-							aria-label={`Visit ${project.name}`}
+							aria-label={`${project.linkLabel ?? 'Visit'} ${project.name}`}
 						>
 							{#if project.preview}
 								<img
@@ -327,13 +337,44 @@
 		}
 	}
 
+	.project-meta {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--space-sm) var(--space-md);
+		margin-bottom: var(--space-md);
+	}
+
 	.project-category {
 		font-size: 0.75rem;
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.18em;
 		color: var(--color-gray-500);
-		margin-bottom: var(--space-md);
+	}
+
+	.project-status {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		font-size: 0.68rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		color: var(--color-gray-200);
+		padding: 0.35rem 0.7rem;
+		border: 1px solid rgba(255, 255, 255, 0.16);
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.04);
+	}
+
+	.project-status::before {
+		content: '';
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #f5c451;
+		box-shadow: 0 0 8px rgba(245, 196, 81, 0.6);
 	}
 
 	.project-title {

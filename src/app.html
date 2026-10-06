@@ -53,11 +53,17 @@
 				]
 			}
 		</script>
+		<style>
+			/* Intro gate: content is visible by default and only hidden while the
+			   homepage intro is about to play (class set by the inline script below). */
+			.page-content{transition:opacity .45s ease}
+			html.preloading .page-content{opacity:0}
+			html.preloading body{overflow:hidden}
+		</style>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
-		<script>try{if(!sessionStorage.getItem('elleven_preloader_seen')){document.documentElement.style.visibility='hidden';setTimeout(function(){document.documentElement.style.visibility=''},3500)}}catch(e){document.documentElement.style.visibility=''}</script>
-		<noscript><style>html{visibility:visible!important}</style></noscript>
+		<script>try{var d=document.documentElement,r=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(location.pathname==='/'&&!r&&!sessionStorage.getItem('elleven_preloader_seen')){d.classList.add('preloading');setTimeout(function(){d.classList.remove('preloading')},3000)}}catch(e){}</script>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

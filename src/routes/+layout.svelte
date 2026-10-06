@@ -8,15 +8,24 @@
 	let { children } = $props();
 	const isAdminRoute = $derived(page.url.pathname.startsWith('/admin'));
 
-	/* ── Preloader state ── */
+	/* ── Preloader state ──
+	   The inline script in app.html decides whether the intro plays (homepage,
+	   first visit, no reduced-motion) by adding `preloading` to <html>. Content
+	   is visible by default; that class is the only thing that hides it. */
 	let showPreloader = $state(false);
-	let pageVisible = $state(false);
+
+	function revealPage() {
+		document.documentElement.classList.remove('preloading');
+	}
 
 	function handlePreloaderComplete() {
 		showPreloader = false;
-		pageVisible = true;
-		document.body.style.overflow = '';
-		sessionStorage.setItem('elleven_preloader_seen', '1');
+		revealPage();
+		try {
+			sessionStorage.setItem('elleven_preloader_seen', '1');
+		} catch {
+			/* storage unavailable (private mode) — intro may replay, which is harmless */
+		}
 	}
 
 	function portal(node: HTMLElement) {
@@ -35,26 +44,27 @@
 			title: 'Studio',
 			variant: 'muted' as const,
 			links: [
+				{ label: 'Services', href: '/services' },
 				{ label: 'Portfolio', href: '/portfolio' },
 				{ label: 'Contact', href: '/contact' },
-		],
+			],
 		},
 		{
 			title: 'Services',
 			variant: 'default' as const,
 			links: [
-				{ label: 'Web Design' },
-				{ label: 'SEO & Performance' },
-				{ label: 'Hosting & Infrastructure' },
+				{ label: 'Web Design', href: '/services#web-design' },
+				{ label: 'SEO & Performance', href: '/services#seo-performance' },
+				{ label: 'Hosting & Infrastructure', href: '/services#hosting-infrastructure' },
 			],
 		},
 		{
 			title: 'Support',
 			variant: 'muted' as const,
 			links: [
-				{ label: 'Email & Domain Setup' },
-				{ label: 'DevOps & Deployment' },
-		],
+				{ label: 'Email & Domain Setup', href: '/services#email-domain' },
+				{ label: 'DevOps & Deployment', href: '/services#devops-deployment' },
+			],
 		},
 	];
 
@@ -77,20 +87,10 @@
 	};
 
 	onMount(() => {
-		if (isAdminRoute) {
-			pageVisible = true;
-			document.documentElement.style.visibility = '';
-			return;
-		}
-
-		const seen = sessionStorage.getItem('elleven_preloader_seen');
-		if (!seen) {
-			showPreloader = true;
-			document.body.style.overflow = 'hidden';
-		} else {
-			pageVisible = true;
-		}
-		document.documentElement.style.visibility = '';
+		// If the inline script's 3s safety fallback already revealed the page
+		// (slow hydration), skip the intro rather than popping it over content.
+		showPreloader = !isAdminRoute && document.documentElement.classList.contains('preloading');
+		if (!showPreloader) revealPage();
 	});
 </script>
 
@@ -106,12 +106,12 @@
 <!-- ── Preloader ── -->
 {#if !isAdminRoute && showPreloader}
 	<div use:portal>
-		<SvgPreloader onComplete={handlePreloaderComplete} />
+		<SvgPreloader onReveal={revealPage} onComplete={handlePreloaderComplete} />
 	</div>
 {/if}
 
 <!-- ── Site Content ── -->
-<div class="page-content" class:page-content--visible={pageVisible}>
+<div class="page-content">
 	{#if !isAdminRoute}
 		<FloatingMenu
 			{menuGroups}
@@ -127,7 +127,13 @@
 		</FloatingMenu>
 	{/if}
 
-	{@render children()}
+	{#if isAdminRoute}
+		{@render children()}
+	{:else}
+		<main id="main-content">
+			{@render children()}
+		</main>
+	{/if}
 
 	{#if !isAdminRoute}
 		<footer class="footer">
@@ -137,6 +143,7 @@
 				</a>
 				<div class="footer-link-groups">
 					<nav class="footer-links footer-links--primary" aria-label="Footer navigation">
+						<a href="/services">Services</a>
 						<a href="/portfolio">Portfolio</a>
 						<a href="/contact">Contact</a>
 					</nav>
@@ -152,15 +159,7 @@
 </div>
 
 <style>
-	/* ── Page fade-in ── */
-	.page-content {
-		opacity: 0;
-		transition: opacity 0.6s ease;
-	}
-
-	.page-content--visible {
-		opacity: 1;
-	}
+	/* Page fade-in for the intro is handled by critical CSS in app.html. */
 
 	.floating-menu-logo {
 		display: inline-flex;

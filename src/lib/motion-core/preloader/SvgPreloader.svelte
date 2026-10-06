@@ -2,13 +2,14 @@
 	import { onMount } from 'svelte';
 
 	interface Props {
+		/** Fires when the exit fade begins, so the page can fade in underneath. */
+		onReveal?: () => void;
 		onComplete?: () => void;
 	}
 
-	let { onComplete }: Props = $props();
+	let { onReveal, onComplete }: Props = $props();
 
 	let overlayEl: HTMLDivElement;
-	let logoEl: HTMLDivElement;
 
 	onMount(() => {
 		const parts = overlayEl.querySelectorAll<SVGGeometryElement>(
@@ -16,6 +17,7 @@
 		);
 
 		if (!parts.length) {
+			onReveal?.();
 			onComplete?.();
 			return;
 		}
@@ -24,7 +26,7 @@
 			const length = part.getTotalLength();
 			part.style.strokeDasharray = String(length);
 			part.style.strokeDashoffset = String(length);
-			part.style.animationDelay = `${index * 0.04}s, ${2.8 + index * 0.02}s`;
+			part.style.animationDelay = `${index * 0.04}s, ${0.6 + index * 0.02}s`;
 		});
 
 		// When the last shape's fill animation finishes, run the exit sequence.
@@ -39,19 +41,17 @@
 			isComplete = true;
 			lastPart.removeEventListener('animationend', onFillEnd);
 
-			// Step 1 — logo fades into the black background
-			logoEl.style.transition = 'opacity 0.65s ease';
-			logoEl.style.opacity = '0';
-
-			// Step 2 — black overlay fades out, revealing the page behind
+			// Brief hold on the filled mark, then fade the whole overlay (logo
+			// included) while the page fades in underneath.
 			setTimeout(() => {
-				overlayEl.style.transition = 'opacity 0.55s ease';
+				onReveal?.();
+				overlayEl.style.transition = 'opacity 0.45s ease';
 				overlayEl.style.opacity = '0';
 
 				setTimeout(() => {
 					onComplete?.();
-				}, 560);
-			}, 680);
+				}, 460);
+			}, 150);
 		}
 
 		function onFillEnd(e: Event) {
@@ -64,7 +64,7 @@
 
 		// Fallback keeps the site from staying hidden if animation events are
 		// suppressed or renamed by the runtime.
-		const fallbackTimer = window.setTimeout(runExitSequence, 4500);
+		const fallbackTimer = window.setTimeout(runExitSequence, 2000);
 
 		return () => {
 			window.clearTimeout(fallbackTimer);
@@ -74,7 +74,7 @@
 </script>
 
 <div bind:this={overlayEl} class="svg-preloader">
-	<div bind:this={logoEl} class="logo-box">
+	<div class="logo-box">
 		<svg
 			class="draw-logo"
 			id="Layer_2"
@@ -104,7 +104,7 @@
 		position: fixed;
 		inset: 0;
 		z-index: 999;
-		background: #111;
+		background: #000;
 		display: grid;
 		place-items: center;
 	}
@@ -128,8 +128,8 @@
 		stroke-linecap: round;
 		stroke-linejoin: round;
 		animation:
-			svgDrawLogo 3s ease forwards,
-			svgFillLogo 0.7s ease forwards 2.8s;
+			svgDrawLogo 0.8s ease forwards,
+			svgFillLogo 0.3s ease forwards 0.6s;
 	}
 
 	@keyframes svgDrawLogo {

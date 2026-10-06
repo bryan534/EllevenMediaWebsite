@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Seo from '$lib/Seo.svelte';
 	import { enhance } from '$app/forms';
+	import { page } from '$app/state';
 	import { fade, fly } from 'svelte/transition';
 	import { backOut } from 'svelte/easing';
 	import type { ActionData } from './$types';
@@ -21,6 +22,9 @@
 		'DevOps & Deployment',
 		'General Inquiry',
 	];
+	// Preselect from ?inquiry= (used by the CTAs on /services). Only known types are accepted.
+	const requestedInquiry = $derived(page.url.searchParams.get('inquiry') ?? '');
+	const defaultInquiry = $derived(inquiryTypes.includes(requestedInquiry) ? requestedInquiry : '');
 	const description = 'Contact Elleven Media for web design, SEO, hosting, DevOps, and domain support. Tell us about your project and we\'ll get back to you quickly.';
 </script>
 
@@ -149,7 +153,7 @@
 
 					<div class="form-group">
 						<label for="inquiry">Inquiry Type</label>
-						<select id="inquiry" name="inquiry" value={form?.inquiry ?? ''} required>
+						<select id="inquiry" name="inquiry" value={form?.inquiry ?? defaultInquiry} required>
 							<option value="" disabled>Select an inquiry type</option>
 							{#each inquiryTypes as type}
 								<option value={type}>{type}</option>

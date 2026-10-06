@@ -7,6 +7,12 @@
 		<priority>1.0</priority>
 	</url>
 	<url>
+		<loc>https://ellevenmediagroup.com/services</loc>
+		<lastmod>2026-10-06</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.9</priority>
+	</url>
+	<url>
 		<loc>https://ellevenmediagroup.com/contact</loc>
 		<lastmod>2026-05-11</lastmod>
 		<changefreq>monthly</changefreq>
@@ -14,7 +20,7 @@
 	</url>
 	<url>
 		<loc>https://ellevenmediagroup.com/portfolio</loc>
-		<lastmod>2026-05-12</lastmod>
+		<lastmod>2026-10-06</lastmod>
 		<changefreq>monthly</changefreq>
 		<priority>0.8</priority>
 	</url>
